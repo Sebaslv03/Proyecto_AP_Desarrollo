@@ -4,6 +4,7 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import ForgotPassword from './pages/ForgotPassword'
 import PersonalInfo from './pages/PersonalInfo'
+import Movie from './pages/Movie'
 
 const App = () => {
   return (
@@ -12,7 +13,7 @@ const App = () => {
       <Route path='/ForgotPassword' element={<ForgotPassword />} />
       <Route path='/Register' element={<Register />} />
       <Route path='/PersonalInfo' element={<PersonalInfo />} />
-
+      <Route path='/Movie' element={<Movie />} /> 
     </Routes>
   )
 }
