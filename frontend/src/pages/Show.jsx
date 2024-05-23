@@ -3,13 +3,53 @@ import { useState } from 'react';
 import Header from '../components/Header';
 import ModalReview from '../components/ModalReview';
 import CommentCarousel from '../components/CommentCarousel';
-const Movie = () => {
+import * as Accordion from '@radix-ui/react-accordion';
+const Show = () => {
     const comments = [
         { author: 'Usuario 1', text: '¡Gran página web!' },
         { author: 'Usuario 2', text: 'Me encanta este sitio.' },
         { author: 'Usuario 3', text: 'Los productos son geniales.' },
         // Puedes agregar más comentarios aquí
       ];
+      //generate season model data
+    const seasons = [
+        {
+            number: 1,
+            episodes: [
+                { title: 'Episode 1',
+                  description: 'Loen ipmsum dolor',
+                  image:"https://m.media-amazon.com/images/M/MV5BY2VmMzgzYzctZDkzMy00YjgxLWI0MjItOGRjNTdmYTYwZWQxXkEyXkFqcGdeQXVyMTM0NTczMzE3._V1_QL75_UY281_CR16,0,500,281_.jpg"
+                },
+                { title: 'Episode 2',
+                  description: 'Loen ipmsum dolor',
+                  image:"https://m.media-amazon.com/images/M/MV5BY2VmMzgzYzctZDkzMy00YjgxLWI0MjItOGRjNTdmYTYwZWQxXkEyXkFqcGdeQXVyMTM0NTczMzE3._V1_QL75_UY281_CR16,0,500,281_.jpg"
+                },
+                { title: 'Episode 3',
+                  description: 'Loen ipmsum dolor',
+                  image:"https://m.media-amazon.com/images/M/MV5BY2VmMzgzYzctZDkzMy00YjgxLWI0MjItOGRjNTdmYTYwZWQxXkEyXkFqcGdeQXVyMTM0NTczMzE3._V1_QL75_UY281_CR16,0,500,281_.jpg"
+                },
+            ],
+        },
+        {
+            number: 2,
+            episodes: [
+                { title: 'Episode 1',
+                  description: 'Loen ipmsum dolor',
+                  image:"https://m.media-amazon.com/images/M/MV5BY2VmMzgzYzctZDkzMy00YjgxLWI0MjItOGRjNTdmYTYwZWQxXkEyXkFqcGdeQXVyMTM0NTczMzE3._V1_QL75_UY281_CR16,0,500,281_.jpg"
+                },
+                { title: 'Episode 2',
+                  description: 'Loen ipmsum dolor',
+                  image:"https://m.media-amazon.com/images/M/MV5BY2VmMzgzYzctZDkzMy00YjgxLWI0MjItOGRjNTdmYTYwZWQxXkEyXkFqcGdeQXVyMTM0NTczMzE3._V1_QL75_UY281_CR16,0,500,281_.jpg"
+                },
+                { title: 'Episode 3',
+                  description: 'Loen ipmsum dolor',
+                  image:"https://m.media-amazon.com/images/M/MV5BY2VmMzgzYzctZDkzMy00YjgxLWI0MjItOGRjNTdmYTYwZWQxXkEyXkFqcGdeQXVyMTM0NTczMzE3._V1_QL75_UY281_CR16,0,500,281_.jpg"
+                },
+            ],
+        },
+    ];
+
+
     return (
         <div className="min-h-screen bg-[#141414] text-white">
             <Header />
@@ -25,6 +65,25 @@ const Movie = () => {
                 {/* Add your movie content here */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-20 items-start">
                     <div className="grid grid-cols-1 col-span-1 md:col-span-2 gap-6 items-center">
+                        {seasons.map((season, index) => (
+                            <Accordion.Root key={index} collapsible type='single' defaultValue='item-1' className='bg-[#333] text-white py-2 px-2 rounded-md mx-3 my-3 w-auto flex flex-col'>
+                                    <Accordion.Item className="AccordionItem" value={`item-${index}`}>
+                                        <Accordion.Trigger>Season {season.number}</Accordion.Trigger>
+                                        <Accordion.Content>
+                                            {season.episodes.map((episode, episodeIndex) => (
+                                                <div key={episodeIndex} className="w-full rounded my-2 mx-2 bg-[#222] border border-[#333] text-white text-center justify-center items-center">
+                                                    <img src={episode.image} alt="Add Photo" className="h-209 w-130 mx-auto " />
+                                                    <h1>{episode.title}</h1>
+                                                    <p className='text-[#757070]'>
+                                                        {episode.description}
+                                                    </p>
+                                                </div>
+                                            ))}
+                                        </Accordion.Content>
+                                    </Accordion.Item>
+                                </Accordion.Root>
+                        ))}
+                        
                         <div className='bg-[#262626] rounded-md px-4 py-4'>
                             <h5 className="">Description</h5>
                             <p className="text-[#757070]">Lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>       
@@ -43,6 +102,7 @@ const Movie = () => {
                                 <ModalReview />
                             </div>
                             {/* Aqui va el review que es un carouselll */}
+                            <input type="text" id="name"  value={"AQUI VA EL CAROUSELL"} className="w-full p-2 rounded bg-[#222] border border-[#333] text-white" disabled/>
                             <h1>Comentarios</h1>
                             <CommentCarousel comments={comments} />
 
@@ -95,4 +155,4 @@ const Movie = () => {
     );
 };
 
-export default Movie;
+export default Show;

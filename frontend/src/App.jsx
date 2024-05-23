@@ -12,7 +12,7 @@ import SearchPage from './pages/SearchPage'
 import ShoppingCart from './pages/ShoppingCart'
 import History from './pages/History'
 import Wishlist from './pages/Wishlist'
-
+import Show from './pages/Show'
 const App = () => {
   return (
     <Routes>
@@ -28,6 +28,7 @@ const App = () => {
       <Route path='/ShoppingCart' element={<ShoppingCart/>}/>
       <Route path='/History' element={<History/>}/>
       <Route path='/Wishlist' element={<Wishlist/>}/>
+      <Route path='/Show' element={<Show/>}/>
     </Routes>
   )
 }
