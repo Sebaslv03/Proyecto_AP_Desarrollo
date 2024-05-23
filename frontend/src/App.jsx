@@ -6,6 +6,9 @@ import ForgotPassword from './pages/ForgotPassword'
 import PersonalInfo from './pages/PersonalInfo'
 import Movie from './pages/Movie'
 import ActorScreenUser from './pages/ActorScreenUser'
+import HomePage from './pages/HomePage'
+import SearchPage from './pages/SearchPage'
+
 
 const App = () => {
   return (
@@ -16,6 +19,9 @@ const App = () => {
       <Route path='/PersonalInfo' element={<PersonalInfo />} />
       <Route path='/Movie' element={<Movie />} /> 
       <Route path='/ActorScreenUser' element={<ActorScreenUser/>}/>
+      <Route path='/HomePage' element={<HomePage/>}/>
+      <Route path='/SearchPage' element={<SearchPage/>}/>
+      
     </Routes>
   )
 }
