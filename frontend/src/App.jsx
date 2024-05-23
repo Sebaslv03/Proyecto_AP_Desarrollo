@@ -9,6 +9,9 @@ import ActorScreenUser from './pages/ActorScreenUser'
 import HomePage from './pages/HomePage'
 import SearchPage from './pages/SearchPage'
 
+import ShoppingCart from './pages/ShoppingCart'
+import History from './pages/History'
+import Wishlist from './pages/Wishlist'
 
 const App = () => {
   return (
@@ -22,6 +25,9 @@ const App = () => {
       <Route path='/HomePage' element={<HomePage/>}/>
       <Route path='/SearchPage' element={<SearchPage/>}/>
       
+      <Route path='/ShoppingCart' element={<ShoppingCart/>}/>
+      <Route path='/History' element={<History/>}/>
+      <Route path='/Wishlist' element={<Wishlist/>}/>
     </Routes>
   )
 }
