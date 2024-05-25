@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import { Plus, Play, ArrowRight, ArrowLeft } from "lucide-react";
 import Header from '../components/Header';
 import { Button } from "@/components/ui/button";
+import supabase from "../config/supabaseClient"
 
 
 const moviesPrincipal = [
@@ -57,7 +58,14 @@ const HomePage = () => {
     Documentaries: 0,
     Others: 0,
   });
+  // const [fetchError, setFetchError] = useState(null)
+  // const [moviesPrincipal, setMoviesPrincipal] = useState(null)
+  // const [movies, setMovies] = useState(null)
+  // const [shows, setShows] = useState(null)
+  // const [documentaries, setDocumentaries] = useState(null)
+  // const [others, setOthers] = useState(null)
 
+ 
   const handlePrevClick = (category) => {
     setCurrentIndex((prevState) => ({
       ...prevState,
