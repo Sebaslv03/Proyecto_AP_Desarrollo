@@ -13,15 +13,15 @@ const HeaderAdmin = () => {
           <h1 className="text-3xl font-bold ml-4 text-white">ShowSeeker</h1>
         </div>
         <div className="flex items-center space-x-4">
-          <button className="text-white">
+          <a href="/stats" className="text-white">
             <img src={stats} alt="stats" className="h-8" />
-          </button>
-          <button className="text-white">
+          </a>
+          <a href="/search" className="text-white">
             <img src={search} alt="search" className="h-8" />
-          </button>
-          <button className="text-white">
+          </a>
+          <a href="/HomePageAdmin" className="text-white">
             <img src={home} alt="home" className="h-8" />
-          </button>
+          </a>
         </div>
       </div>
     </header>
@@ -29,4 +29,5 @@ const HeaderAdmin = () => {
 };
 
 export default HeaderAdmin;
+
 

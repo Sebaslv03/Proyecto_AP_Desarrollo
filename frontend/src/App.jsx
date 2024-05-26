@@ -13,6 +13,12 @@ import ShoppingCart from './pages/ShoppingCart'
 import History from './pages/History'
 import Wishlist from './pages/Wishlist'
 import Show from './pages/Show'
+
+import HomePageAdmin from './pages/HomePageAdmin'
+import AddMovie from './pages/AddMovie'
+import AddActorDirector from './pages/AddActorDirector'
+
+
 const App = () => {
   return (
     <Routes>
@@ -29,6 +35,13 @@ const App = () => {
       <Route path='/History' element={<History/>}/>
       <Route path='/Wishlist' element={<Wishlist/>}/>
       <Route path='/Show' element={<Show/>}/>
+      
+
+
+
+      <Route path='/HomePageAdmin' element={<HomePageAdmin/>}/>
+      <Route path='/AddMovie' element={<AddMovie/>}/>
+      <Route path='/AddActorDirector' element={<AddActorDirector/>}/>
     </Routes>
   )
 }
