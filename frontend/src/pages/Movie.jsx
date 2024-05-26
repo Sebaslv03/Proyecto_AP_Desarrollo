@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useState } from 'react';
 import Header from '../components/Header';
 import ModalReview from '../components/ModalReview';
 import CommentCarousel from '../components/CommentCarousel';
+import supabase from '../config/supabaseClient';
 const Movie = () => {
     const comments = [
         { author: 'Usuario 1', text: '¡Gran página web!' },
@@ -10,6 +11,20 @@ const Movie = () => {
         { author: 'Usuario 3', text: 'Los productos son geniales.' },
         // Puedes agregar más comentarios aquí
       ];
+
+    useEffect(() => {
+        //testting the connection
+        const fetchMovies = async () => {
+            const { data, error } = await supabase
+                .from('movie')
+                .select('*')
+            console.log(data);
+            //handle error
+            console.log(error);
+        }
+        fetchMovies();
+    }, []);
+
     return (
         <div className="min-h-screen bg-[#141414] text-white">
             <Header />
