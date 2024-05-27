@@ -61,6 +61,7 @@ const Movie = () => {
     const [newFamilyMember, setNewFamilyMember] = useState('');
     const [imagePath, setImagePath] = useState(null);
     const [imageUrl, setImageUrl] = useState('');
+    const [role, setRole] = useState('actor');
 
     useEffect(() => {
         fetchNationalities();
@@ -82,9 +83,11 @@ const Movie = () => {
     };
 
     const handleAddActorDirector = async () => {
-        // Inserción del autor/director
+        let tableName = role === 'actor' ? 'actor' : 'director';
+
+        // Inserción del actor/director
         const { data: actorDirectorData, error: actorDirectorError } = await supabase
-            .from('actoranddirector')
+            .from(tableName)
             .insert([
                 {
                     name: firstName,
@@ -101,31 +104,42 @@ const Movie = () => {
                 }
             ])
             .select();  // Seleccionar los datos insertados
-    
+
         if (actorDirectorError) {
-            console.error('Error adding actor/director:', actorDirectorError);
+            console.error(`Error adding ${role}:`, actorDirectorError);
             return;
         }
-    
+
         const actorDirectorId = actorDirectorData[0].id;
-    
+
         // Inserción de los datos de la familia
         const familyData = familyMembers.map(member => ({
             idActorDirector: actorDirectorId,
             name: member
         }));
-    
-        const { error: familyError } = await supabase
-            .from('familyMember')
+
+        if (role === 'actor'){
+            const { error: familyError } = await supabase
+            .from('familyMemberActor')
             .insert(familyData);
-    
-        if (familyError) {
-            console.error('Error adding family members:', familyError);
+            if (familyError) {
+                console.error('Error adding family members:', familyError);
+            } else {
+                alert(`${role.charAt(0).toUpperCase() + role.slice(1)} and family members added successfully!`);
+            }
         } else {
-            alert('Actor/Director and family members added successfully!');
+            const { error: familyError } = await supabase
+            .from('familyMemberDirector')
+            .insert(familyData);
+            if (familyError) {
+                console.error('Error adding family members:', familyError);
+            } else {
+                alert(`${role.charAt(0).toUpperCase() + role.slice(1)} and family members added successfully!`);
         }
+        }
+
+        
     };
-    
 
     const handleFileChange = async (event) => {
         const file = event.target.files[0];
@@ -147,7 +161,6 @@ const Movie = () => {
         }
         alert("Image deleted succesfully")
     };
-    
 
     return (
         <div className="min-h-screen bg-[#141414] text-white">
@@ -265,6 +278,15 @@ const Movie = () => {
                         {nationalities.map((nationality) => (
                             <option className='text-white' key={nationality.id} value={nationality.id}>{nationality.name}</option>
                         ))}
+                    </select>
+                    <h3 className="text-lg font-semibold mt-6">Role</h3>
+                    <select
+                        value={role}
+                        onChange={(e) => setRole(e.target.value)}
+                        className="w-full bg-[#141414] text-white p-4 rounded-lg mt-2"
+                    >
+                        <option value="actor" className='text-white'>Actor</option>
+                        <option value="director" className='text-white'>Director</option>
                     </select>
                     <h3 className="text-lg font-semibold mt-6">Family</h3>
                     <div className="flex flex-col gap-2">
