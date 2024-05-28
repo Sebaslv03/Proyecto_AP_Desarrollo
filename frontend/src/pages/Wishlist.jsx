@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Header from '../components/Header';
+import HeaderAlt from "../components/HeaderAlt";
 
 const Wishlist = () => {
     // Burnt data for wishlist movies
@@ -39,7 +39,7 @@ const Wishlist = () => {
 
     return (
         <div className="min-h-screen bg-[#141414] text-white">
-            <Header />
+            <HeaderAlt />
             <div className="container mx-auto py-4 px-4">
                 <h2 className="text-4xl font-bold mb-6">Wishlist</h2>
                 <div className="grid gap-6">

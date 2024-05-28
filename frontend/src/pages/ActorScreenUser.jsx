@@ -1,11 +1,10 @@
 import React from 'react';
-import { useState } from 'react';
-import Header from '../components/Header';
+import HeaderUser from '../components/HeaderUser';
 
 const ActorScreenUser = () => {
     return (
         <div className="min-h-screen bg-[#141414] text-white">
-            <Header />
+            <HeaderUser />
             <div className="container mx-auto py-4 px-4">
                 <div className='flex flex-col items-center my-3'>
                     <img 

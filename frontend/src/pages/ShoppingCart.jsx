@@ -1,7 +1,7 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import Header from "../components/Header";
-import creditcard from "../images/creditcard.png"
+import HeaderAlt from "../components/HeaderAlt";
+import creditcard from "../images/creditcard.png";
 
 const ShoppingCart = () => {
     // Burnt data for shopping cart movies
@@ -41,7 +41,7 @@ const ShoppingCart = () => {
 
     return (
         <div className="min-h-screen bg-[#141414] text-white">
-            <Header />
+            <HeaderAlt />
             <div className="container mx-auto py-4 px-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="md:col-span-2">

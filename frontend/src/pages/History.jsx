@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Header from '../components/Header';
+import HeaderAlt from "../components/HeaderAlt";
 
 const History = () => {
     // Burnt data for purchased movies
@@ -71,7 +71,7 @@ const History = () => {
 
     return (
         <div className="min-h-screen bg-[#141414] text-white">
-            <Header />
+            <HeaderAlt />
             <div className="container mx-auto py-4 px-4">
                 <h2 className="text-4xl font-bold mb-6">Shopping History</h2>
                 <div className="grid gap-6 mb-10">
