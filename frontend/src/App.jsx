@@ -18,7 +18,8 @@ import HomePageAdmin from './pages/HomePageAdmin'
 import AddMovie from './pages/AddMovie'
 import AddShow from './pages/AddShow'
 import AddActorDirector from './pages/AddActorDirector'
-
+import EditMovie from './pages/EditMovie'
+import EditShow from './pages/EditShow'
 
 const App = () => {
   return (
@@ -44,6 +45,8 @@ const App = () => {
       <Route path='/AddMovie' element={<AddMovie/>}/>
       <Route path='/AddShow' element={<AddShow/>}/>
       <Route path='/AddActorDirector' element={<AddActorDirector/>}/>
+      <Route path='/EditMovie/:id' element={<EditMovie/>}/>
+      <Route path='/EditShow/:id' element={<EditShow/>}/>
     </Routes>
   )
 }

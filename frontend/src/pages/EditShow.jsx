@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import Header from '../components/HeaderAdmin';
@@ -9,7 +10,6 @@ import { Trash2, Image, Plus } from "lucide-react";
 import Modal from 'react-modal';
 import supabase from "../config/supabaseClient";
 import { v4 as uuidv4 } from 'uuid';
-import { useNavigate } from "react-router-dom";
 import Select from 'react-select';
 
 Modal.setAppElement('#root'); // Asegúrate de que el root ID es correcto
@@ -37,20 +37,32 @@ async function uploadImage(file) {
     return { url: ImportantData.publicUrl, path: path };
 }
 
-async function deleteImage(path) {
+async function deleteImage(publicUrl) {
+    // Extrae el path desde el publicUrl
+    // Suponemos que el URL sigue un formato estándar de Supabase:
+    // "https://xyz.supabase.co/storage/v1/object/public/your-bucket-name/path/to/file.jpg"
+    const basePath = "https://etvvfulbajnrvkzsnkfv.supabase.co/storage/v1/object/public/images/movies/";
+    const path = publicUrl.replace(basePath, ''); // Asegúrate de ajustar la base URL a tu configuración de Supabase
+    console.log(path)
     const { error } = await supabase
         .storage
         .from('images')
         .remove([path]);
+
     if (error) {
-        console.error('Error deleting image:', error);
+        console.error('Error deleting image by URL:', error);
     }
 }
 
-const Movie = () => {
-    const [releaseDate, setReleaseDate] = useState(null);
-    const [duration, setDuration] = useState('');
-    const [price, setPrice] = useState('');
+const EditShow = () => {
+    const { id } = useParams();
+    const [showDetails, setShowDetails] = useState({
+        name: '',
+        releaseDate: null,
+        price: '',
+        sinopsis: '',
+        photo: ''
+    });
     const [genres, setGenres] = useState([]);
     const [availableGenres, setAvailableGenres] = useState([]);
     const [modalIsOpen, setModalIsOpen] = useState(false);
@@ -65,15 +77,131 @@ const Movie = () => {
     const [selectedActor, setSelectedActor] = useState('');
     const [selectedDirector, setSelectedDirector] = useState('');
     const [cast, setCast] = useState([]);
-    const [movieDirectors, setMovieDirectors] = useState([]);
+    const [showDirectors, setShowDirectors] = useState([]);
     const [seasons, setSeasons] = useState([]);
     const navigate = useNavigate();
 
     useEffect(() => {
+        fetchShowDetails();
         fetchGenres();
         fetchActors();
         fetchDirectors();
     }, []);
+
+    const fetchShowDetails = async () => {
+        const { data, error } = await supabase
+            .from('show')
+            .select('*')
+            .eq('id', id)
+            .single();
+        if (error) {
+            console.error('Error fetching show details:', error);
+            return;
+        }
+        const show = data;
+        setShowDetails({
+            name: show.name,
+            releaseDate: new Date(show.releaseDate),
+            price: show.price,
+            sinopsis: show.sinopsis,
+            photo: show.photo
+        });
+        setImageUrl(show.photo);
+        fetchShowGenres();
+        fetchShowCast();
+        fetchShowDirectors();
+        fetchShowSeasons();
+    };
+
+    const fetchShowGenres = async () => {
+        const { data, error } = await supabase
+            .from('showXcategory')
+            .select('idCategory')
+            .eq('idShow', id);
+        if (error) {
+            console.error('Error fetching movie genres:', error);
+            return;
+        }
+        // Ahora obtenemos los nombres de los géneros usando los IDs recogidos
+        const genreIds = data.map(item => item.idCategory);
+        const { data: genresData, error: genresError } = await supabase
+            .from('category')
+            .select('*')
+            .in('id', genreIds);
+        if (genresError) {
+            console.error('Error fetching genres details:', genresError);
+            return;
+        }
+        // Guardamos los géneros como objetos con id y nombre
+        setGenres(genresData.map(g => ({ id: g.id, nombre: g.nombre })));
+    };
+
+    const fetchShowCast = async () => {
+        const { data, error } = await supabase
+            .from('showXactor')
+            .select('idActor')
+            .eq('idShow', id);
+        if (error) {
+            console.error('Error fetching movie cast:', error);
+            return;
+        }
+        const actorIds = data.map(item => item.idActor);
+        const { data: actorsData, error: actorsError } = await supabase
+            .from('actor')
+            .select('*')
+            .in('id', actorIds);
+        if (actorsError) {
+            console.error('Error fetching actor details:', actorsError);
+            return;
+        }
+        // Guardamos actores como objetos con id y nombre completo
+        setCast(actorsData.map(a => ({ id: a.id, name: a.name + ' ' + a.lastName })));
+    };
+
+    const fetchShowDirectors = async () => {
+        const { data, error } = await supabase
+            .from('showXdirector')
+            .select('idDirector')
+            .eq('idShow', id);
+        if (error) {
+            console.error('Error fetching movie directors:', error);
+            return;
+        }
+        const directorIds = data.map(item => item.idDirector);
+        const { data: directorsData, error: directorsError } = await supabase
+            .from('director')
+            .select('*')
+            .in('id', directorIds);
+        if (directorsError) {
+            console.error('Error fetching director details:', directorsError);
+            return;
+        }
+        // Guardamos directores como objetos con id y nombre completo
+        setShowDirectors(directorsData.map(d => ({ id: d.id, name: d.name + ' ' + d.lastName })));
+    };
+
+    const fetchShowSeasons = async () => {
+        const { data, error } = await supabase
+            .from('season')
+            .select('id, numberOfSeason')
+            .eq('idShow', id);
+        if (error) {
+            console.error('Error fetching seasons:', error);
+            return;
+        }
+        const seasonDetails = await Promise.all(data.map(async season => {
+            const { data: episodes, error: episodeError } = await supabase
+                .from('episode')
+                .select('*')
+                .eq('idSeason', season.id);
+            if (episodeError) {
+                console.error('Error fetching episodes:', episodeError);
+                return;
+            }
+            return { ...season, episodes };
+        }));
+        setSeasons(seasonDetails);
+    };
 
     const fetchActors = async () => {
         const { data, error } = await supabase
@@ -119,35 +247,27 @@ const Movie = () => {
 
     const addNewGenreToDB = async () => {
         if (newGenre) {
-            // Verificar si el género ya existe en la base de datos
             const { data: existingGenre, error: fetchError } = await supabase
                 .from('category')
                 .select('id')
                 .eq('nombre', newGenre)
                 .single();
-    
-            if (fetchError && fetchError.code !== 'PGRST116') { // Ignorar error "no rows found"
+            if (fetchError && fetchError.code !== 'PGRST116') {
                 console.error('Error checking existing genre:', fetchError);
                 return;
             }
-    
             if (existingGenre) {
                 alert('Genre already exists:', existingGenre);
                 setNewGenre('');
                 return;
             }
-    
-            // Insertar el nuevo género si no existe
             const { data, error } = await supabase
                 .from('category')
                 .insert([{ nombre: newGenre }]);
-    
             if (error) {
                 console.error('Error adding genre:', error);
             } else {
-                // Verifica si data está definido y es un array
                 fetchGenres();
-                console.log(availableGenres);
                 setNewGenre('');
             }
         }
@@ -161,8 +281,8 @@ const Movie = () => {
     };
 
     const addDirector = () => {
-        if (selectedDirector && !movieDirectors.some(director => director.id === selectedDirector.id)) {
-            setMovieDirectors([...movieDirectors, selectedDirector]);
+        if (selectedDirector && !showDirectors.some(director => director.id === selectedDirector.id)) {
+            setShowDirectors([...showDirectors, selectedDirector]);
         }
         setDirectorModalIsOpen(false);
     };
@@ -180,8 +300,8 @@ const Movie = () => {
     };
 
     const handleDeleteImage = async () => {
-        if (imagePath) {
-            await deleteImage(imagePath);
+        if (imageUrl) {
+            await deleteImage(imageUrl);
             setImageUrl('');
             setImagePath(null);
         }
@@ -202,124 +322,126 @@ const Movie = () => {
         label: actor.name + " " + actor.lastName
     }));
 
-    const handleAddShow = async () => {
-        const { data: movieData, error: movieError } = await supabase
+    const handleUpdateShow = async () => {
+        const { error: showError } = await supabase
             .from('show')
-            .insert([
-                {
-                    name: document.getElementById('title').value,
-                    releaseDate: releaseDate,
-                    price: price,
-                    sinopsis: document.getElementById('sinopsis').value,
-                    photo: imageUrl
-                }
-            ])
-            .select();
-    
-        if (movieError) {
-            console.error('Error adding movie:', movieError);
+            .update({
+                name: showDetails.name,
+                releaseDate: showDetails.releaseDate,
+                price: showDetails.price,
+                sinopsis: showDetails.sinopsis,
+                photo: imageUrl
+            })
+            .eq('id', id);
+        if (showError) {
+            console.error('Error updating show:', showError);
             return;
         }
-    
-        const movieId = movieData[0].id;
-    
-        // Inserta en la tabla 'showXactor'
+        await supabase.from('showXactor').delete().eq('idShow', id);
         for (const actor of cast) {
             const { error: actorError } = await supabase
                 .from('showXactor')
-                .insert([
-                    {
-                        idShow: movieId,
-                        idActor: actor.id
-                    }
-                ]);
-    
+                .insert([{ idShow: id, idActor: actor.id }]);
             if (actorError) {
-                console.error('Error adding showXactor:', actorError);
+                console.error('Error updating showXactor:', actorError);
                 return;
             }
         }
-    
-        // Inserta en la tabla 'showXcategory'
+        await supabase.from('showXcategory').delete().eq('idShow', id);
         for (const genre of genres) {
             const { error: genreError } = await supabase
                 .from('showXcategory')
-                .insert([
-                    {
-                        idShow: movieId,
-                        idCategory: genre.id
-                    }
-                ]);
-    
+                .insert([{ idShow: id, idCategory: genre.id }]);
             if (genreError) {
-                console.error('Error adding showXcategory:', genreError);
+                console.error('Error updating showXcategory:', genreError);
                 return;
             }
         }
-    
-        // Inserta en la tabla 'showXdirector'
-        for (const director of movieDirectors) {
+        await supabase.from('showXdirector').delete().eq('idShow', id);
+        for (const director of showDirectors) {
             const { error: directorError } = await supabase
                 .from('showXdirector')
-                .insert([
-                    {
-                        idShow: movieId,
-                        idDirector: director.id
-                    }
-                ]);
-    
+                .insert([{ idShow: id, idDirector: director.id }]);
             if (directorError) {
-                console.error('Error adding showXdirector:', directorError);
+                console.error('Error updating showXdirector:', directorError);
                 return;
             }
         }
-    
-        // Inserta en la tabla 'season' y 'episode'
+        const { data: seasonsData, error: seasonsError } = await supabase
+        .from('season')
+        .select('id')
+        .eq('idShow', id);
+
+        if (seasonsError) {
+            console.error('Error fetching seasons:', seasonsError);
+            return;
+        }
+
+        for (const season of seasonsData) {
+            // Elimina todos los episodios asociados a esta temporada
+            const { error: episodesError } = await supabase
+                .from('episode')
+                .delete()
+                .eq('idSeason', season.id);
+
+            if (episodesError) {
+                console.error('Error deleting episodes:', episodesError);
+                return;
+            }
+
+            // Elimina la temporada
+            const { error: seasonError } = await supabase
+                .from('season')
+                .delete()
+                .eq('id', season.id);
+
+            if (seasonError) {
+                console.error('Error deleting season:', seasonError);
+                return;
+            }
+        }
+
+        // Inserta las nuevas temporadas y episodios
         for (const season of seasons) {
-            console.log(season)
             const { data: seasonData, error: seasonError } = await supabase
                 .from('season')
-                .insert([
-                    {
-                        idShow: movieId,
-                        numberOfSeason: season.id
-                    }
-                ])
+                .insert({
+                    idShow: id,
+                    numberOfSeason: season.numberOfSeason
+                })
                 .select();
-    
+
             if (seasonError) {
                 console.error('Error adding season:', seasonError);
                 return;
             }
-    
+
             const seasonId = seasonData[0].id;
-    
+
             for (const episode of season.episodes) {
                 const { error: episodeError } = await supabase
                     .from('episode')
-                    .insert([
-                        {
-                            idSeason: seasonId,
-                            name: episode.name,
-                            sinopsis: episode.sinopsis,
-                            duration: episode.duration
-                        }
-                    ]);
-    
+                    .insert({
+                        idSeason: seasonId,
+                        name: episode.name,
+                        sinopsis: episode.sinopsis,
+                        duration: episode.duration
+                    });
+
                 if (episodeError) {
                     console.error('Error adding episode:', episodeError);
                     return;
                 }
             }
         }
-    
-        alert('Show added successfully!');
+        alert('Show updated successfully!');
+        //navigate('/');
     };
-    
 
     const addSeason = () => {
         const newSeason = {
             id: seasons.length + 1,
+            numberOfSeason: seasons.length + 1,
             episodes: [],
         };
         setSeasons([...seasons, newSeason]);
@@ -330,7 +452,8 @@ const Movie = () => {
             if (season.id === seasonId) {
                 const newEpisode = {
                     id: season.episodes.length + 1,
-                    title: '',
+                    name: '',
+                    sinopsis: '',
                     duration: '',
                 };
                 return { ...season, episodes: [...season.episodes, newEpisode] };
@@ -384,7 +507,14 @@ const Movie = () => {
                         backgroundRepeat: 'no-repeat'
                     }}>
                     <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-end items-center pb-16">
-                        <Input type="text" id="title" placeholder="Title" className="bg-inherit text-[38px] text-center text-white border-0 font-bold h-[57px] w-[1194px]"/>
+                        <Input 
+                            type="text" 
+                            id="title" 
+                            placeholder="Title" 
+                            className="bg-inherit text-[38px] text-center text-white border-0 font-bold h-[57px] w-[1194px]"
+                            value={showDetails.name}
+                            onChange={(e) => setShowDetails({ ...showDetails, name: e.target.value })}
+                        />
                         <div className="mt-4 flex space-x-2">
                             <input
                                 type="file"
@@ -404,15 +534,14 @@ const Movie = () => {
                 </div>
             </div>
             <div className="w-[1596px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6 pt-[114px]">
-                {/* Div Izquierdo Superior */}
                 <div className="bg-[#1A1A1A] p-6 rounded-lg lg:col-span-2 ">
                     <h3 className="text-lg font-semibold">Description</h3>
                     <Textarea  
-                        id="sinopsis" className="w-full bg-gray-700 bg-inherit p-4 rounded-lg mt-2" 
+                        className="w-full bg-gray-700 bg-inherit p-4 rounded-lg mt-2" 
+                        value={showDetails.sinopsis}
+                        onChange={(e) => setShowDetails({ ...showDetails, sinopsis: e.target.value })}
                     />
                 </div>
-
-                {/* Div Izquierdo Inferior */}
                 <div className="bg-[#1A1A1A] p-6 rounded-lg">
                     <h3 className="text-lg font-semibold">Cast</h3>
                     <div className="flex flex-col gap-2 mt-2">
@@ -421,15 +550,12 @@ const Movie = () => {
                         ))}
                         <Button variant="outline" className="bg-[#141414] p-2 rounded" onClick={() => setCastModalIsOpen(true)}>Add Cast Member</Button>
                     </div>
-
                 </div>
-
-                {/* Div Derecho */}
                 <div className="bg-[#1A1A1A] p-6 rounded-lg">
-                <h3 className="text-lg font-semibold">Released Year</h3>
+                    <h3 className="text-lg font-semibold">Released Year</h3>
                     <DatePicker
-                        selected={releaseDate}
-                        onChange={(date) => setReleaseDate(date)}
+                        selected={showDetails.releaseDate}
+                        onChange={(date) => setShowDetails({ ...showDetails, releaseDate: date })}
                         dateFormat="yyyy"
                         showYearPicker
                         placeholderText="Select year"
@@ -439,8 +565,8 @@ const Movie = () => {
                     <Input 
                         type="number" 
                         placeholder="Insert price ($)" 
-                        value={price}
-                        onChange={(e) => setPrice(e.target.value)}
+                        value={showDetails.price}
+                        onChange={(e) => setShowDetails({ ...showDetails, price: e.target.value })}
                         className="bg-[#141414] p-4 w-[300px] h-[40px] rounded-lg mt-2" 
                     />
                     <h3 className="text-lg font-semibold mt-6">Genres</h3>
@@ -450,23 +576,18 @@ const Movie = () => {
                         ))}
                         <Button variant="outline" className="bg-[#141414] p-2 rounded" onClick={() => setModalIsOpen(true)}>Add Genre</Button>
                     </div>
-
-
                     <h3 className="text-lg font-semibold mt-6">Directors</h3>
                     <div className="flex flex-col gap-2 mt-2">
-                        {movieDirectors.map((director, index) => (
-                            <Button onClick={() => setMovieDirectors(movieDirectors.filter((g) => g.id !== director.id))} key={index} className="bg-[#141414] p-2 rounded">{director.name}</Button>
+                        {showDirectors.map((director, index) => (
+                            <Button onClick={() => setShowDirectors(showDirectors.filter((g) => g.id !== director.id))} key={index} className="bg-[#141414] p-2 rounded">{director.name}</Button>
                         ))}
                         <Button variant="outline" className="bg-[#141414] p-2 rounded" onClick={() => setDirectorModalIsOpen(true)}>Add Director</Button>
                     </div>
-
                     <div className="mt-8 flex justify-center">
-                        <Button className="bg-red-600 p-4 rounded-lg" onClick={handleAddShow}>Add Show</Button>
+                        <Button className="bg-red-600 p-4 rounded-lg" onClick={handleUpdateShow}>Update Show</Button>
                     </div>
                 </div>
             </div>
-
-            {/* Div para temporadas y episodios */}
             <div className="bg-[#1A1A1A] w-[1596px] mx-auto mt-8">
                 <h3 className="text-lg font-semibold mb-4">Seasons and Episodes</h3>
                 {seasons.map((season) => (
@@ -507,11 +628,8 @@ const Movie = () => {
                         ))}
                     </div>
                 ))}
-
                 <Button variant="outline" className="bg-[#141414] p-2 rounded" onClick={addSeason}>Add Season</Button>
             </div>
-
-            {/* Modal para seleccionar y añadir géneros */}
             <Modal
                 isOpen={modalIsOpen}
                 onRequestClose={() => setModalIsOpen(false)}
@@ -550,8 +668,6 @@ const Movie = () => {
                     </div>
                 </div>
             </Modal>
-
-            {/* Modal para seleccionar y añadir actores al cast */}
             <Modal
                 isOpen={castModalIsOpen}
                 onRequestClose={() => setCastModalIsOpen(false)}
@@ -609,8 +725,6 @@ const Movie = () => {
                     <Button className="bg-[#E50000] p-2 rounded-lg" onClick={navigateToAddActorDirector}>Add New Actor</Button>
                 </div>
             </Modal>
-
-            {/* Modal para seleccionar y añadir directores */}
             <Modal
                 isOpen={directorModalIsOpen}
                 onRequestClose={() => setDirectorModalIsOpen(false)}
@@ -668,9 +782,9 @@ const Movie = () => {
                     <Button className="bg-[#E50000] p-2 rounded-lg" onClick={navigateToAddActorDirector}>Add New Director</Button>
                 </div>
             </Modal>
-
         </div>
     );
 };
 
-export default Movie;
+export default EditShow;
+

@@ -32,6 +32,8 @@ async function uploadImage(file) {
         .from('images')
         .getPublicUrl(path);
 
+
+    console.log(ImportantData.publicUrl)
     return { url: ImportantData.publicUrl, path: path };
 }
 
@@ -312,7 +314,7 @@ const Movie = () => {
                     <Input 
                         type="number" 
                         placeholder="Insert height (cm)"
-                        className="w-full bg-[#141414] p-4 w-[300px] h-[40px] rounded-lg mt-2"
+                        className="bg-[#141414] p-4 w-[300px] h-[40px] rounded-lg mt-2"
                         value={height}
                         onChange={(e) => setHeight(e.target.value)}
                     />

@@ -300,7 +300,6 @@ const Movie = () => {
                     }}>
                     <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-end items-center pb-16">
                         <Input type="text" id="title" placeholder="Title" className="bg-inherit text-[38px] text-center text-white border-0 font-bold h-[57px] w-[1194px]"/>
-                        <Textarea placeholder="Sinopsis" id="sinopsis" className="bg-inherit text-[18px] text-center text-white border-0 font-bold h-[27px] w-[1194px]"  />
                         <div className="mt-4 flex space-x-2">
                             <input
                                 type="file"
@@ -324,7 +323,7 @@ const Movie = () => {
                 <div className="bg-[#1A1A1A] p-6 rounded-lg lg:col-span-2 ">
                     <h3 className="text-lg font-semibold">Description</h3>
                     <Textarea  
-                        className="w-full bg-gray-700 bg-inherit p-4 rounded-lg mt-2" 
+                        id="sinopsis" className="w-full bg-gray-700 bg-inherit p-4 rounded-lg mt-2" 
                     />
                 </div>
 
@@ -349,7 +348,7 @@ const Movie = () => {
                         dateFormat="yyyy"
                         showYearPicker
                         placeholderText="Select year"
-                        className="w-full bg-[#141414] p-4 w-[75px] h-[40px] rounded-lg mt-2"
+                        className="bg-[#141414] p-4 w-[75px] h-[40px] rounded-lg mt-2"
                     />
                     <h3 className="text-lg font-semibold mt-6">Price</h3>
                     <Input 
@@ -357,7 +356,7 @@ const Movie = () => {
                         placeholder="Insert price ($)" 
                         value={price}
                         onChange={(e) => setPrice(e.target.value)}
-                        className="w-full bg-[#141414] p-4 w-[300px] h-[40px] rounded-lg mt-2" 
+                        className="bg-[#141414] p-4 w-[300px] h-[40px] rounded-lg mt-2" 
                     />
                     <h3 className="text-lg font-semibold mt-6">Duration</h3>
                     <Input 
@@ -365,7 +364,7 @@ const Movie = () => {
                         placeholder="Insert duration (minutes)" 
                         value={duration}
                         onChange={(e) => setDuration(e.target.value)}
-                        className="w-full bg-[#141414] p-4 w-[300px] h-[40px] rounded-lg mt-2" 
+                        className="bg-[#141414] p-4 w-[300px] h-[40px] rounded-lg mt-2" 
                     />
                     <h3 className="text-lg font-semibold mt-6">Genres</h3>
                     <div className="flex flex-wrap gap-2 mt-2">
