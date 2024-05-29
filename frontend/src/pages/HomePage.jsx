@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import { Plus, Play, ArrowRight, ArrowLeft } from "lucide-react";
-import Header from '../components/Header';
+import HeaderUser from '../components/HeaderUser';
 import { Button } from "@/components/ui/button";
 import supabase from "../config/supabaseClient"
 
@@ -86,7 +86,7 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen bg-[#141414] text-white">
-      <Header />
+      <HeaderUser />
 
       <div className="flex justify-center w-full mt-8">
         <div className="relative" style={{ width: '1594px', height: '835px', backgroundImage: `url('${moviesPrincipal[currentIndex.Principal].image}')`, backgroundSize: 'cover', backgroundPosition: 'center' }}>

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useState } from 'react';
-import Header from '../components/Header';
+import HeaderUser from '../components/HeaderUser';
 import ModalReview from '../components/ModalReview';
 import CommentCarousel from '../components/CommentCarousel';
 import supabase from '../config/supabaseClient';
@@ -27,7 +27,7 @@ const Movie = () => {
 
     return (
         <div className="min-h-screen bg-[#141414] text-white">
-            <Header />
+            <HeaderUser />
             <div className="container mx-auto py-4 px-4 ">
                 <div className='flex flex-col items-center my-3'>
                     <img src="https://m.media-amazon.com/images/M/MV5BYTljM2Y0NTctZDE5OC00ZGU5LWJiZWYtMTkxMGY2ODNlNjdmXkEyXkFqcGdeQXVyMTAwMjgyOTY4._V1_FMjpg_UX2160_.jpg" alt="Add Photo" className="h-209 w-130 mx-auto " />
