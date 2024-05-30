@@ -35,6 +35,8 @@ async function uploadImage(file) {
 const Register = () => {
   const [nationalities, setNationalities] = useState([]);
   const [selectedNationality, setSelectedNationality] = useState('');
+  const [genre, setGenres] = useState([]);
+  const [selectedGenre, setSelectedGenre] = useState('');
   const [firstName, setFirstName] = useState('');
   const [secondName, setSecondName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -59,6 +61,17 @@ const Register = () => {
       .select('*');
     if (error) console.error('Error fetching nationalities:', error);
     else setNationalities(data);
+  };
+  useEffect(() => {
+    fetchGenres();
+  }, []);
+
+  const fetchGenres = async () => {
+    const { data, error } = await supabase
+      .from('genre')
+      .select('*');
+    if (error) console.error('Error fetching genres:', error);
+    else setGenres(data);
   };
 
   const handleFileChange = async (event) => {
@@ -112,6 +125,7 @@ const Register = () => {
           nationality: selectedNationality,
           idNumber: idNumber,
           community: community,
+          genre: selectedGenre,
           birthDate: birthdate,
           phoneNumber: phoneNumber,
           photo: imageUrl,
@@ -175,6 +189,19 @@ const Register = () => {
               </select>
             </div>
             <div>
+              <label htmlFor="genre" className="block mb-2">Genre</label>
+              <select
+                value={selectedGenre}
+                onChange={(e) => setSelectedGenre(e.target.value)}
+                className="w-full p-2 rounded bg-[#222] border border-[#333] text-white"
+              >
+                <option value="" className='text-white' disabled>Select a genre</option>
+                {genre.map((genre) => (
+                  <option className='text-white' key={genre.id} value={genre.id}>{genre.name}</option>
+                ))}
+              </select>
+            </div>
+            <div>
               <label htmlFor="id" className="block mb-2">ID or passport</label>
               <Input type="text" id="id" placeholder="Enter ID or passport" className="w-full p-2 rounded bg-[#222] border border-[#333] text-white" value={idNumber} onChange={(e) => setIdNumber(e.target.value)} />
             </div>
@@ -227,5 +254,6 @@ const Register = () => {
 };
 
 export default Register;
+
 
 
