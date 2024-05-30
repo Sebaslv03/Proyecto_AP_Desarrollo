@@ -1,16 +1,20 @@
 import React, { useEffect } from 'react';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import HeaderUser from '../components/HeaderUser';
 import ModalReview from '../components/ModalReview';
 import CommentCarousel from '../components/CommentCarousel';
 import supabase from '../config/supabaseClient';
+
 const Movie = () => {
     const comments = [
         { author: 'Usuario 1', text: '¡Gran página web!' },
         { author: 'Usuario 2', text: 'Me encanta este sitio.' },
         { author: 'Usuario 3', text: 'Los productos son geniales.' },
         // Puedes agregar más comentarios aquí
-      ];
+    ];
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         //testting the connection
@@ -24,6 +28,10 @@ const Movie = () => {
         }
         fetchMovies();
     }, []);
+
+    const handlePersonClick = (personId) => {
+        navigate(`/ActorScreenUser/${personId}`);
+    };
 
     return (
         <div className="min-h-screen bg-[#141414] text-white">
@@ -46,10 +54,25 @@ const Movie = () => {
                         </div>
                         <div className='bg-[#262626] rounded-md px-4 py-4'>
                             <h5 className=" text-white">Cast</h5>
-                            {/*Mapping Cast*/}
-                            <input type="text" id="first-last-name" value={"B. Ajaneesh Loknath"} className="w-auto p-2 rounded my-2 mx-2 bg-[#222] border border-[#333] text-white" disabled />
-                            <input type="text" id="first-last-name" value={"B. Ajaneesh Loknath"} className="w-auto p-2 rounded my-2 mx-2 bg-[#222] border border-[#333] text-white" disabled />
-                            <input type="text" id="first-last-name" value={"B. Ajaneesh Loknath"} className="w-auto p-2 rounded my-2 mx-2 bg-[#222] border border-[#333] text-white" disabled />
+                            {/* Mapping Cast */}
+                            <div
+                                className="w-auto p-2 rounded my-2 mx-2 bg-[#222] border border-[#333] text-white cursor-pointer"
+                                onClick={() => handlePersonClick(1)}  // Replace with actual personId
+                            >
+                                B. Ajaneesh Loknath
+                            </div>
+                            <div
+                                className="w-auto p-2 rounded my-2 mx-2 bg-[#222] border border-[#333] text-white cursor-pointer"
+                                onClick={() => handlePersonClick(2)}  // Replace with actual personId
+                            >
+                                B. Ajaneesh Loknath
+                            </div>
+                            <div
+                                className="w-auto p-2 rounded my-2 mx-2 bg-[#222] border border-[#333] text-white cursor-pointer"
+                                onClick={() => handlePersonClick(3)}  // Replace with actual personId
+                            >
+                                B. Ajaneesh Loknath
+                            </div>
                         </div>
                         <div className='bg-[#262626] rounded-md px-4 py-4 flex-col flex items-center justify-center'>
                             <div className='flex justify-center items-center'>
@@ -57,7 +80,7 @@ const Movie = () => {
                                 {/*<button className='bg-[#333] text-white p-2 rounded-md mx-3 my-3' onClick={openModalReview}>Add Review</button>*/}
                                 <ModalReview />
                             </div>
-                            {/* Aqui va el review que es un carouselll */}
+                            {/* Aqui va el review que es un carousell */}
                             <h1>Comentarios</h1>
                             <CommentCarousel comments={comments} />
 
@@ -68,43 +91,47 @@ const Movie = () => {
                         <p className="text-[#757070] mb-2">2021</p>
                         <label className="block mb-2">Available Languages</label>
                         <div className='justify-center items-center inline-block mb-10 '>
-                            {/**Mapping languajes */}
-                            <input type="text"  value={"English"} className=" w-auto p-2 rounded my-2 mx-2 bg-[#222] border border-[#333] text-white" disabled />
-                            <input type="text"  value={"Spanish"} className=" w-auto p-2 rounded my-2 mx-2 bg-[#222] border border-[#333] text-white" disabled />
-                            <input type="text"  value={"French"} className=" w-auto p-2 rounded my-2 mx-2 bg-[#222] border border-[#333] text-white" disabled />
-                            <input type="text"  value={"English"} className=" w-auto p-2 rounded my-2 mx-2 bg-[#222] border border-[#333] text-white" disabled />
-                            <input type="text"  value={"Spanish"} className=" w-auto p-2 rounded my-2 mx-2 bg-[#222] border border-[#333] text-white" disabled />
-                            <input type="text"  value={"French"} className=" w-auto p-2 rounded my-2 mx-2 bg-[#222] border border-[#333] text-white" disabled />
+                            {/* Mapping languages */}
+                            <input type="text" value={"English"} className=" w-auto p-2 rounded my-2 mx-2 bg-[#222] border border-[#333] text-white" disabled />
+                            <input type="text" value={"Spanish"} className=" w-auto p-2 rounded my-2 mx-2 bg-[#222] border border-[#333] text-white" disabled />
+                            <input type="text" value={"French"} className=" w-auto p-2 rounded my-2 mx-2 bg-[#222] border border-[#333] text-white" disabled />
                         </div>
                         
-                        <label  className="block mb-2">Ratings</label>
+                        <label className="block mb-2">Ratings</label>
                         <input type="text" id="second-last-name" placeholder="Enter Second Last Name" className="w-auto p-2 rounded bg-[#222] border border-[#333] text-white mb-5" />
 
                         <label className="block mb-2"><h1>Genres</h1></label>
                         <div className='justify-center items-center inline-block mb-10 '>
-                            {/**Mapping genres */}
-                            <input type="text"  value={"Drama"} className=" w-auto p-2 rounded my-2 mx-2 bg-[#222] border border-[#333] text-white" disabled />
-                            <input type="text"  value={"Action"} className=" w-auto p-2 rounded my-2 mx-2 bg-[#222] border border-[#333] text-white" disabled />
-                            <input type="text"  value={"Gang"} className=" w-auto p-2 rounded my-2 mx-2 bg-[#222] border border-[#333] text-white" disabled />
-                            <input type="text"  value={"Adult"} className=" w-auto p-2 rounded my-2 mx-2 bg-[#222] border border-[#333] text-white" disabled />
-                            <input type="text"  value={"Mature"} className=" w-auto p-2 rounded my-2 mx-2 bg-[#222] border border-[#333] text-white" disabled />
-                            <input type="text"  value={"Stallone"} className=" w-auto p-2 rounded my-2 mx-2 bg-[#222] border border-[#333] text-white" disabled />
-                            
+                            {/* Mapping genres */}
+                            <input type="text" value={"Drama"} className=" w-auto p-2 rounded my-2 mx-2 bg-[#222] border border-[#333] text-white" disabled />
+                            <input type="text" value={"Action"} className=" w-auto p-2 rounded my-2 mx-2 bg-[#222] border border-[#333] text-white" disabled />
+                            <input type="text" value={"Gang"} className=" w-auto p-2 rounded my-2 mx-2 bg-[#222] border border-[#333] text-white" disabled />
+                            <input type="text" value={"Adult"} className=" w-auto p-2 rounded my-2 mx-2 bg-[#222] border border-[#333] text-white" disabled />
+                            <input type="text" value={"Mature"} className=" w-auto p-2 rounded my-2 mx-2 bg-[#222] border border-[#333] text-white" disabled />
+                            <input type="text" value={"Stallone"} className=" w-auto p-2 rounded my-2 mx-2 bg-[#222] border border-[#333] text-white" disabled />
                         </div>
 
-                        <label  className="block mb-2">Directors</label>
-                        {/**Mapping directors */}
+                        <label className="block mb-2">Directors</label>
+                        {/* Mapping directors */}
+                        <div
+                            className="w-auto p-2 rounded my-2 mx-2 bg-[#222] border border-[#333] text-white cursor-pointer"
+                            onClick={() => handlePersonClick(4)}  // Replace with actual personId
+                        >
+                            Juan Santamaría
+                        </div>
+                        <div
+                            className="w-auto p-2 rounded my-2 mx-2 bg-[#222] border border-[#333] text-white cursor-pointer"
+                            onClick={() => handlePersonClick(5)}  // Replace with actual personId
+                        >
+                            Jose María
+                        </div>
+
+                        <label className="block mb-2">Writers</label>
+                        {/* Mapping writers */}
                         <input type="text" id="second-last-name" placeholder="Juan Santamaría" className="w-auto p-2 my-2 mx-2 rounded bg-[#222] border border-[#333] text-white mb-5" disabled/>
                         <input type="text" id="second-last-name" placeholder="Jose María " className="w-auto p-2 my-2 mx-2 rounded bg-[#222] border border-[#333] text-white mb-5" disabled/>
-
-                        <label  className="block mb-2">Writters</label>
-                        {/**Mapping Writters */}
-                        <input type="text" id="second-last-name" placeholder="Juan Santamaría" className="w-auto p-2 my-2 mx-2 rounded bg-[#222] border border-[#333] text-white mb-5" disabled/>
-                        <input type="text" id="second-last-name" placeholder="Jose María " className="w-auto p-2 my-2 mx-2 rounded bg-[#222] border border-[#333] text-white mb-5" disabled/>
-
                     </div>
                 </div>
-
             </div>
         </div>
     );
