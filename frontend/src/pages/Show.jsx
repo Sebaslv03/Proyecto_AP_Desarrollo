@@ -4,10 +4,11 @@ import Header from '../components/HeaderUser';
 import ModalReview from '../components/ModalReviewShow';
 import CommentCarousel from '../components/CommentCarouselShow';
 import * as Accordion from '@radix-ui/react-accordion';
-import { useParams } from 'react-router-dom';
+import { useParams,useNavigate} from 'react-router-dom';
 import supabase from '../config/supabaseClient';
 const Show = () => {
     const {id} = useParams();
+    const navigate = useNavigate();
     const [show, setShow] = useState({}); // [1
     const [cast, setCast] = useState([]); // [2
     const [platforms, setPlatforms] = useState([]); // [3]
@@ -16,6 +17,7 @@ const Show = () => {
     const [seasons, setSeasons] = useState([]); // [6]
     const releaseDate = show.releasedate;
     const year = new Date(releaseDate).getUTCFullYear();
+    const [rating, setRating] = useState(0); // [7]
     useEffect(() => {
         //testting the connection
         const fetchData = async (functionName, setState, value) => {
@@ -41,6 +43,7 @@ const Show = () => {
         fetchData('getplatformsbyshowid', setPlatforms, id)
         fetchData('getcategoriesbyshowid', setCategories, id)
         fetchData('getdirectorsbyshowid', setDirectors, id)
+        fetchData('getavgshowbyid', setRating, id)
         const fetchSeasonsEpisodes = async () => {
             const { data, error } = await supabase
                 .from('season')
@@ -124,6 +127,9 @@ const Show = () => {
             ],
         },
     ];
+    const handlePersonClick = (personId, category) => {
+        navigate(`/ActorScreenUser/${personId}/${category}`);
+    };
 
 
     return (
@@ -171,7 +177,7 @@ const Show = () => {
                                     <button key={actor.name} type="button"
                                         id="first-last-name"
                                         className="w-auto p-2 rounded my-2 mx-2 bg-[#222] border border-[#333] text-white"
-                                        onClick={() => alert("Actor Clicked")}
+                                        onClick={() => handlePersonClick(actor.id_actor, "actor")}
                                     >
                                         {actor.name +" "+actor.lastname}
                                     </button>
@@ -206,7 +212,7 @@ const Show = () => {
                         </div>
 
                         <label className="block mb-2">Ratings</label>
-                        <input type="text" id="second-last-name" placeholder="Enter Second Last Name" className="w-auto p-2 rounded bg-[#222] border border-[#333] text-white mb-5" />
+                        <input type="text" id="second-last-name" value={rating[0].average_rating} className="w-auto p-2 rounded bg-[#222] border border-[#333] text-white mb-5" disabled/>
 
                         <label className="block mb-2"><h1>Genres</h1></label>
                         <div className='justify-center items-center inline-block mb-10 '>
@@ -223,7 +229,9 @@ const Show = () => {
                         <label className="block mb-2">Directors</label>
                         {/**Mapping directors */
                         directors.map((director) => (
-                            <input key={director.name} type="text" id="first-last-name" value={director.name + " " + director.lastname} className="w-auto p-2 rounded my-2 mx-2 bg-[#222] border border-[#333] text-white" disabled />
+                            <button key={director.name} id="first-last-name"  className="w-auto p-2 rounded my-2 mx-2 bg-[#222] border border-[#333] text-white"
+                            onClick={() => handlePersonClick(director.director_id, "director")}
+                            >{director.name + " " + director.lastname}</button> 
                         ))}
                     </div>
                 </div>
