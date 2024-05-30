@@ -4,8 +4,6 @@ import 'react-datepicker/dist/react-datepicker.css';
 import image from '../images/profilepic.png';
 import Header from '../components/Header';
 import supabase from "../config/supabaseClient";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 
 const PersonalInfo = () => {
@@ -48,10 +46,47 @@ const PersonalInfo = () => {
     else setGenres(data);
   };
 
+  const historyView = async () => {
+    navigate('/History'); 
+  }
+
+  const saveInputs = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        setError("User not authenticated");
+        return;
+      }
+  
+      const { error } = await supabase
+        .from('person')
+        .update({
+          name: firstName,
+          secondName: secondName,
+          lastName: lastName,
+          secondLastName: secondLastName,
+          idNumber: idNumber,
+          phoneNumber: phoneNumber,
+          nationality: nationality,
+          community: community,
+          birthDate: birthdate,
+          photo: imageUrl
+        })
+        .eq('email', user.email);
+  
+      if (error) {
+        throw error;
+      }
+  
+      alert("Personal information updated successfully!");
+    } catch (error) {
+      setError(error.message);
+    }
+  };
 
   const fetchPersonalInfo = async () => {
     try {
-      console.log("Fetching personal info...");
       const {data: { user },} = await supabase.auth.getUser()
     
       if (error || !user) {
@@ -59,15 +94,13 @@ const PersonalInfo = () => {
         return;
       }
   
-      console.log("User found:", user);
   
-      // Obtener la información del usuario a partir del correo electrónico
       const { data, error: fetchError } = await supabase
         .from('person')
         .select('*')
         .eq('email', user.email);
 
-        //console.log("ID number: ", data[0].idNumber);
+
 
   
       if (fetchError) {
@@ -104,23 +137,6 @@ const PersonalInfo = () => {
       const imageUrl = data[0].photo;
       setImageUrl(imageUrl);
 
-
-     /*setPersonalInfo({
-        id: data.id || '',
-        name: data.name || '', // Si data.name es undefined, asigna una cadena vacía
-        secondName: data.secondName || '',
-        lastName: data.lastName || '',
-        secondLastName: data.secondLastName || '',
-        nationality: data.nationality || '',
-        genre: data.genre || '',
-        idNumber: data.idNumber || '',
-        community: data.community || '',
-        birthDate: data.birthDate ? new Date(data.birthDate) : '', // Verifica si data.birthDate es válido antes de convertirlo en un objeto Date
-        phoneNumber: data.phoneNumber || '',
-        //email: user.email || '', // Asegúrate de que user.email también esté definido
-        photo: data.photo || '',
-        idUser: data.idUser || '',
-      }); */
     } catch (error) {
       setError(error.message);
     }
@@ -259,13 +275,13 @@ const PersonalInfo = () => {
           </div>
           <div>
             <div className="flex justify-left mt-8">
-            <button type="submit" className="w-40 max-w-xs p-2 rounded bg-[#e50914] text-white"> View my history</button>
+            <button type="submit" className="w-40 max-w-xs p-2 rounded bg-[#e50914] text-white" onClick={historyView}> View my history</button>
             </div>          
           </div>
         </div>
 
         <div className="flex justify-center mt-8">
-          <button type="submit" className="w-full max-w-xs p-2 rounded bg-[#e50914] text-white"> Save changes</button>
+          <button type="submit" className="w-full max-w-xs p-2 rounded bg-[#e50914] text-white" onClick={saveInputs} > Save changes</button>
         </div>
 
         <div className="text-center mt-4">
