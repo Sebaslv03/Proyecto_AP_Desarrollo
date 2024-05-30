@@ -96,30 +96,57 @@ const Movie = () => {
     };
 
     const handleWishCart = async () => {
+        console.log("Wish")
         const {data: { user },} = await supabase.auth.getUser()
-        const { dataUser, errorUser: fetchError } = await supabase
+        const { data, error: fetchError } = await supabase
             .from('person')
             .select('*')
             .eq('email', user.email);
-        if(errorUser){
-            console.log(errorUser)
-        } else if(dataUser){
-            console.log(dataUser)
-        }
     }
 
     const handleCart = async () => {
-        const {data: { user },} = await supabase.auth.getUser()
-        const { dataUser, errorUser: fetchError } = await supabase
+        console.log("Carrito");
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+            console.error("User is not authenticated");
+            return;
+        }
+        const { data, error: fetchError } = await supabase
             .from('person')
             .select('*')
             .eq('email', user.email);
-        if(errorUser){
-            console.log(errorUser)
-        } else if(dataUser){
-            console.log(dataUser)
+    
+        if (fetchError) {
+            console.error('Error fetching user:', fetchError);
+            return;
         }
-    }
+        if (!data || data.length === 0) {
+            console.error('User not found in person table');
+            return;
+        }
+    
+        const userId = data[0].id;
+    
+        console.log(userId);
+        console.log(id)
+
+        const { dataCart, errorCart } = await supabase
+            .from('userXfavoriteMovie')
+            .insert([
+                {
+                    idMovie: id,
+                    idUser: userId
+                }
+            ]);
+    
+        if (errorCart) {
+            console.error('Error inserting data into userXfavoriteMovie:', errorCart);
+        } else {
+            console.log('Data inserted successfully:', dataCart);
+        }
+    };
+    
+    
 
 
     return (
@@ -130,8 +157,8 @@ const Movie = () => {
                     <img src={movie.photo} alt="Add Photo" className="h-209 w-130 mx-auto " />
                     <p className='text-2xl font-bold my-3'>{movie.title}</p>
                     <div className='justify-center'>
-                        <button className="bg-[#333] text-white p-2 rounded-md mx-3 my-3 w-40" onClick={() => handleWishCart}>Wish</button>
-                        <button className="bg-[#333] text-white p-2 rounded-md mx-3 my-3 w-40" onClick={() => handleCart}>Cart</button>
+                        <button className="bg-[#333] text-white p-2 rounded-md mx-3 my-3 w-40" onClick={handleWishCart}>Wish</button>
+                        <button className="bg-[#333] text-white p-2 rounded-md mx-3 my-3 w-40" onClick={handleCart}>Cart</button>
                     </div>
                 </div>
                 {/* Add your movie content here */}
