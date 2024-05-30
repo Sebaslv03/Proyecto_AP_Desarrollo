@@ -14,7 +14,8 @@ const Show = () => {
     const [platforms, setPlatforms] = useState([]); // [3]
     const [categories, setCategories] = useState([]); // [4]
     const [directors, setDirectors] = useState([]); // [5
-    const [seasons, setSeasons] = useState([]); // [6]
+    const [seasons, setSeasons] = useState([]);
+    const [prueba, setPrueba] = useState([]);
     const releaseDate = show.releasedate;
     const year = new Date(releaseDate).getUTCFullYear();
     const [rating, setRating] = useState(0); // [7]
@@ -43,40 +44,56 @@ const Show = () => {
         fetchData('getplatformsbyshowid', setPlatforms, id)
         fetchData('getcategoriesbyshowid', setCategories, id)
         fetchData('getdirectorsbyshowid', setDirectors, id)
-        fetchData('getavgshowbyid', setRating, id)
-        const fetchSeasonsEpisodes = async () => {
-            const { data, error } = await supabase
-                .from('season')
-                .select('id,numberOfSeason')
-                .eq('idShow', id);
-            if (error) {
-                console.log(error);
-            }
-            if (data) {
-                console.log(data);
-                setSeasons(data);
-                setepisodes();
-            }
-        }
-        fetchSeasonsEpisodes();
-        const setepisodes = async () => {
-            seasons.map(async (season) => {
-                const { data, error } = await supabase
-                    .from('episode')
-                    .select('id,name,sinopsis,duration')
-                    .eq('idSeason', season.id);
-                if (error) {
-                    console.log(error);
-                }
-                if (data) {
-                    console.log(data);
-                    season.episodes = data;
-                }
-            });
-            console.log(seasons);
-        }
+        //fetchData('getavgshowbyid', setRating, id)
+        fetchShowSeasons();
+        fetchAndLogSeasons();
     }, [id]);
 
+    const handleFetchSeasons = async () => {
+        const seasons1 = await fetchShowSeasons();
+        console.log('Fetched seasons:', seasons1);
+        setSeasons(seasons1);
+        return seasons1;
+    };
+    
+    // Llamada a la función y manejo del valor retornado
+    const fetchAndLogSeasons = async () => {
+        const a = await handleFetchSeasons();
+        setSeasons(a)
+    };
+    
+
+    const fetchShowSeasons = async () => {
+        const { data, error } = await supabase
+            .from('season')
+            .select('id, numberOfSeason')
+            .eq('idShow', id);
+    
+        if (error) {
+            console.error('Error fetching seasons:', error);
+            return null;
+        }
+    
+        const seasonDetails = await Promise.all(data.map(async (season) => {
+            const { data: episodes, error: episodeError } = await supabase
+                .from('episode')
+                .select('*')
+                .eq('idSeason', season.id);
+    
+            if (episodeError) {
+                console.error('Error fetching episodes:', episodeError);
+                return { ...season, episodes: [] }; // Devuelve una temporada sin episodios en caso de error
+            }
+    
+            return { ...season, episodes };
+        }));
+    
+        setSeasons(seasonDetails); 
+        setPrueba(seasonDetails);
+    
+        return seasonDetails;
+    };
+    
 
     const comments = [
         { author: 'Usuario 1', text: '¡Gran página web!' },
@@ -147,24 +164,39 @@ const Show = () => {
                 {/* Add your movie content here */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-20 items-start">
                     <div className="grid grid-cols-1 col-span-1 md:col-span-2 gap-6 items-center">
-                        {seasonsa.map((season, index) => (
-                            <Accordion.Root key={index} collapsible type='single' defaultValue='item-1' className='bg-[#333] text-white py-2 px-2 rounded-md mx-3 my-3 w-auto flex flex-col'>
-                                <Accordion.Item className="AccordionItem" value={`item-${index}`}>
-                                    <Accordion.Trigger>Season {season.number}</Accordion.Trigger>
-                                    <Accordion.Content>
-                                        {season.episodes.map((episode, episodeIndex) => (
-                                            <div key={episodeIndex} className="w-full rounded my-2 mx-2 bg-[#222] border border-[#333] text-white text-center justify-center items-center">
-                                                <img src={episode.image} alt="Add Photo" className="h-209 w-130 mx-auto " />
-                                                <h1>{episode.title}</h1>
-                                                <p className='text-[#757070]'>
-                                                    {episode.description}
-                                                </p>
-                                            </div>
-                                        ))}
-                                    </Accordion.Content>
-                                </Accordion.Item>
-                            </Accordion.Root>
-                        ))}
+                    {seasons.map((season) => (
+                    <div key={season.id} className="mt-4">
+                        <div className="flex justify-between items-center bg-[#333] p-2 rounded">
+                            <h4 className="text-md font-semibold">Season {season.numberOfSeason}</h4>
+                        </div>
+                        {season.episodes.map((episode) => (
+                            <div key={episode.id} className="mt-2 p-2 rounded bg-inherit">
+                                <div className="flex flex-col">
+                                    <input
+                                        type="text"
+                                        placeholder="Episode Title"
+                                        className="bg-[#333] p-2 rounded mt-2"
+                                        value={"Title: " + episode.name}
+                                        disabled
+                                    />
+                                    <textarea
+                                        placeholder="Episode Synopsis"
+                                        className="bg-[#333] p-2 rounded mt-2"
+                                        value={"Sinopsis: " + episode.sinopsis}
+                                        disabled
+                                    />
+                                    <input
+                                        type="text"
+                                        placeholder="Duration (minutes)"
+                                        className="bg-[#333] p-2 rounded mt-2"
+                                        value={"Duration: " + episode.duration.toString() + " min"}
+                                        disabled
+                                    />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    ))}
 
                         <div className='bg-[#262626] rounded-md px-4 py-4'>
                             <h5 className="">Description</h5>
@@ -212,7 +244,7 @@ const Show = () => {
                         </div>
 
                         <label className="block mb-2">Ratings</label>
-                        <input type="text" id="second-last-name" value={rating[0].average_rating} className="w-auto p-2 rounded bg-[#222] border border-[#333] text-white mb-5" disabled/>
+                        <input type="text" id="second-last-name" /*value={rating[0].average_rating}*/ className="w-auto p-2 rounded bg-[#222] border border-[#333] text-white mb-5" disabled/>
 
                         <label className="block mb-2"><h1>Genres</h1></label>
                         <div className='justify-center items-center inline-block mb-10 '>
