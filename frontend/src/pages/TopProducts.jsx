@@ -104,7 +104,7 @@ const SearchPage = () => {
             if (movieError) {
                 console.error('Error fetching movie:', movieError);
             } else if (movieData) {
-                navigate(`/EditMovie/${item.id}`);
+                navigate(`/Movie/${item.id}`);
                 return;
             }
 
@@ -118,7 +118,7 @@ const SearchPage = () => {
             if (showError) {
                 console.error('Error fetching show:', showError);
             } else if (showData) {
-                navigate(`/EditShow/${item.id}`);
+                navigate(`/Show/${item.id}`);
                 return;
             }
 

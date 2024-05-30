@@ -25,6 +25,7 @@ import EditActorDirector from './pages/EditActorDirector'
 import TopAdmin from './pages/TopProductsAdmin'
 import StatsAdmin from './pages/StatsAdmin'
 import AdminCatalog from './pages/AdminCatalog'
+import TopProducts from './pages/TopProducts'
 
 const App = () => {
   return (
@@ -58,6 +59,7 @@ const App = () => {
       <Route path='/TopProductsAdmin' element={<TopAdmin/>}/>
       <Route path='/StatsAdmin' element={<StatsAdmin/>} />
       <Route path='/AdminCatalog' element={<AdminCatalog/>} />
+      <Route path='/TopProducts' element={<TopProducts/>} />
       
     </Routes>
   )

@@ -52,7 +52,7 @@ const SearchPage = () => {
   };
 
   const handleTopAdmin = () => {
-    navigate('/TopProductsAdmin')
+    navigate('/TopProducts')
   }
 
   const filteredMovies = movies.filter(movie =>
