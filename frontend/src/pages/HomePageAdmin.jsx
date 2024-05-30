@@ -122,7 +122,7 @@ const HomePage = () => {
                 {category.items.slice(currentIndex[category.name], currentIndex[category.name] + 5).map((item, index) => (
                 <div key={index} className="flex-shrink-0 w-[284px] h-[377px] bg-[#1A1A1A] p-2 rounded-[12px] cursor-pointer flex flex-col items-center justify-between" onClick={() => handleItemClick(item, category)}>
                     <img src={item.photo} alt={item.title} className="rounded mb-2 w-[243px] h-[281px]" />
-                    <h3 className="text-center text-white pb-2">{item.title}</h3>
+                    {category.name === 'Movies' ? (<h3 className="text-center text-white pb-2">{item.title}</h3>) : (<h3 className="text-center text-white pb-2">{item.name}</h3>)}
                     <p className="text-gray-400 text-center rounded-[51px] bg-[#141414] w-[242px] h-[36px] flex items-center justify-center">Released at {item.releaseDate}</p>
                 </div>
                 ))}

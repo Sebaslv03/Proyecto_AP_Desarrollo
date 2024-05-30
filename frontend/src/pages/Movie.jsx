@@ -53,7 +53,7 @@ const Movie = () => {
                 console.error(error)
             }
             if (data) {
-
+                console.log(data)
                 setDirectors(data);
             }
         }
@@ -92,8 +92,8 @@ const Movie = () => {
         }
         fetchAvgMovieRating();
     }, [id]);
-    const handlePersonClick = (personId) => {
-        navigate(`/ActorScreenUser/${personId}`);
+    const handlePersonClick = (personId, category) => {
+        navigate(`/ActorScreenUser/${personId}/${category}`);
     };
 
 
@@ -120,7 +120,7 @@ const Movie = () => {
                             <h5 className=" text-white">Cast</h5>
                             {/**Mapping actors */
                                 cast.map((actor) => (
-                                    <button key={actor.name} onClick={() => handlePersonClick(actor.id_actor)} type="button"
+                                    <button key={actor.name} onClick={() => handlePersonClick(actor.id_actor, "actor")} type="button"
                                     id="first-last-name" 
                                     className="w-auto p-2 rounded my-2 mx-2 bg-[#222] border border-[#333] text-white"
                                     > {actor.name + " " + actor.lastname}</button>
@@ -172,7 +172,10 @@ const Movie = () => {
                         <label className="block mb-2">Directors</label>
                         {/**Mapping directors */}
                         {directors.map((director) => (
-                            <input key={director.name} type="text" id="first-last-name" value={director.name + " " + director.lastname} className="w-auto p-2 rounded my-2 mx-2 bg-[#222] border border-[#333] text-white" disabled />
+                            <button key={director.name} onClick={() => handlePersonClick(director.id_director, "director")} type="button"
+                            id="first-last-name" 
+                            className="w-auto p-2 rounded my-2 mx-2 bg-[#222] border border-[#333] text-white"
+                            > {director.name + " " + director.lastname}</button>
                         ))}
 
 

@@ -1,53 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
-import { Plus, Play, ArrowRight, ArrowLeft } from "lucide-react";
-import HeaderUser from '../components/HeaderUser';
+import { Plus, Play, ArrowRight, ArrowLeft, CirclePlus } from "lucide-react";
+import Header from '../components/HeaderUser';
 import { Button } from "@/components/ui/button";
 import supabase from "../config/supabaseClient"
-
-
-const moviesPrincipal = [
-  { title: 'Adipurush', releaseDate: '14 April 2023', image: 'https://www.infobae.com/new-resizer/zpbKsaWPnAABW5OVSJqg1J5E5G0=/1440x810/filters:format(webp):quality(85)/s3.amazonaws.com/arc-wordpress-client-uploads/infobae-wp/wp-content/uploads/2019/04/24133716/avengers-endgame-22.jpg' },
-  { title: 'Sin City', releaseDate: '15 April 2023', image: 'movie/path' },
-  { title: 'Tomorrow War', releaseDate: '19 April 2023', image: 'movie/path' },
-  { title: 'Misfire', releaseDate: '11 April 2023', image: 'movie/path' },
-];
-
-const movies = [
-  { title: 'Adipurush', releaseDate: '14 April 2023', image: 'https://www.infobae.com/new-resizer/zpbKsaWPnAABW5OVSJqg1J5E5G0=/1440x810/filters:format(webp):quality(85)/s3.amazonaws.com/arc-wordpress-client-uploads/infobae-wp/wp-content/uploads/2019/04/24133716/avengers-endgame-22.jpg' },
-  { title: 'Sin City', releaseDate: '15 April 2023', image: 'movie/path' },
-  { title: 'Tomorrow War', releaseDate: '19 April 2023', image: 'movie/path' },
-  { title: 'Misfire', releaseDate: '11 April 2023', image: 'movie/path' },
-  { title: 'Movie 5', releaseDate: '22 April 2023', image: 'movie/path' },
-];
-
-const shows = [
-  { title: 'Show 1', releaseDate: '10 May 2023', image: 'show/path' },
-  { title: 'Show 2', releaseDate: '15 May 2023', image: 'show/path' },
-  { title: 'Show 3', releaseDate: '20 May 2023', image: 'show/path' },
-  { title: 'Show 4', releaseDate: '25 May 2023', image: 'show/path' },
-];
-
-const documentaries = [
-  { title: 'Doc 1', releaseDate: '10 June 2023', image: 'doc/path' },
-  { title: 'Doc 2', releaseDate: '15 June 2023', image: 'doc/path' },
-  { title: 'Doc 3', releaseDate: '20 June 2023', image: 'doc/path' },
-  { title: 'Doc 4', releaseDate: '25 June 2023', image: 'doc/path' },
-];
-
-const others = [
-  { title: 'Other 1', releaseDate: '10 July 2023', image: 'other/path' },
-  { title: 'Other 2', releaseDate: '15 July 2023', image: 'other/path' },
-  { title: 'Other 3', releaseDate: '20 July 2023', image: 'other/path' },
-  { title: 'Other 4', releaseDate: '25 July 2023', image: 'other/path' },
-];
-
-const categories = [
-  { name: 'Movies', items: movies },
-  { name: 'Shows', items: shows },
-  { name: 'Documentaries', items: documentaries },
-  { name: 'Others', items: others },
-];
 
 const HomePage = () => {
   const navigate = useNavigate();   
@@ -55,17 +11,38 @@ const HomePage = () => {
     Principal: 0,
     Movies: 0,
     Shows: 0,
-    Documentaries: 0,
-    Others: 0,
   });
-  // const [fetchError, setFetchError] = useState(null)
-  // const [moviesPrincipal, setMoviesPrincipal] = useState(null)
-  // const [movies, setMovies] = useState(null)
-  // const [shows, setShows] = useState(null)
-  // const [documentaries, setDocumentaries] = useState(null)
-  // const [others, setOthers] = useState(null)
+  const [moviesPrincipal, setMoviesPrincipal] = useState([]);
+  const [movies, setMovies] = useState([]);
+  const [shows, setShows] = useState([]);
+  
+  const categories = [
+    { name: 'Movies', items: movies },
+    { name: 'Shows', items: shows },
+  ];
 
- 
+  useEffect(() => {
+    fetchContent();
+  }, []);
+
+  const fetchContent = async () => {
+    const fetchData = async (tableName, setState, limit) => {
+      const { data, error } = await supabase
+        .from(tableName)
+        .select('*')
+        .limit(limit);
+      if (error) {
+        console.error(`Error fetching ${tableName}:`, error);
+        return [];
+      }
+      setState(data);
+    };
+
+    fetchData('movie', setMoviesPrincipal, 4); // Get top 4 movies
+    fetchData('movie', setMovies);
+    fetchData('show', setShows);
+  };
+
   const handlePrevClick = (category) => {
     setCurrentIndex((prevState) => ({
       ...prevState,
@@ -80,29 +57,33 @@ const HomePage = () => {
     }));
   };
 
-  const handleItemClick = (item) => {
-    navigate('/details');
+  const handleItemClick = (item, category) => {
+    if (category.name === 'Movies') {
+      navigate(`/Movie/${item.id}`);
+    } else if (category.name === 'Shows') {
+      navigate(`/Show/${item.id}`);
+    }
   };
+
 
   return (
     <div className="min-h-screen bg-[#141414] text-white">
-      <HeaderUser />
+      <Header />
 
       <div className="flex justify-center w-full mt-8">
-        <div className="relative" style={{ width: '1594px', height: '835px', backgroundImage: `url('${moviesPrincipal[currentIndex.Principal].image}')`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+        <div className="relative" style={{ 
+                    width: '1594px', 
+                    height: '835px', 
+                    backgroundImage: `url('${moviesPrincipal[currentIndex.Principal]?.photo}')`, 
+                    backgroundSize: 'contain', 
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat'
+                }}>
           <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-end items-center pb-16">
-            <h1 className="text-4xl font-bold">{moviesPrincipal[currentIndex.Principal].title}</h1>
+            <h1 className="text-4xl font-bold">{moviesPrincipal[currentIndex.Principal]?.title}</h1>
             <p className="mt-2 text-center max-w-lg">
-              With the help of remaining allies, the Avengers must assemble once more in order to undo Thanos's actions and restore order to the universe...
+              {moviesPrincipal[currentIndex.Principal]?.sinopsis}
             </p>
-            <div className="mt-4 flex space-x-2">
-              <Button variant="outline" className="bg-[#E50000] border-1 h-[56px] w-[76px]" size="icon">
-                <Play className="h-28px w-28px" />
-              </Button>
-              <Button variant="outline" className='w-[56px] h-[56px] bg-black border-1' size="icon">
-                <Plus className="h-28px w-28px" />
-              </Button>
-            </div>
             <div className="flex justify-center mt-4 space-x-1">
               {moviesPrincipal.map((_, index) => (
                 <div key={index} className={`h-2.5 mx-1 rounded-full ${index === currentIndex.Principal ? 'bg-red-600' : 'bg-gray-400'}`} style={{ width: index === currentIndex.Principal ? '40px' : '20px' }}></div>
@@ -126,11 +107,11 @@ const HomePage = () => {
             </div>
             <div className="relative">
               <div className="flex justify-center overflow-x-auto space-x-4">
-                {category.items.slice(currentIndex[category.name], currentIndex[category.name] + 5).map((movie, index) => (
-                <div key={index} className="flex-shrink-0 w-[284px] h-[377px] bg-[#1A1A1A] p-2 rounded-[12px] cursor-pointer flex flex-col items-center justify-between" onClick={() => handleItemClick(movie)}>
-                    <img src={movie.image} alt={movie.title} className="rounded mb-2 w-[243px] h-[281px]" />
-                    <h3 className="text-center text-white pb-2">{movie.title}</h3>
-                    <p className="text-gray-400 text-center rounded-[51px] bg-[#141414] w-[242px] h-[36px] flex items-center justify-center">Released at {movie.releaseDate}</p>
+                {category.items.slice(currentIndex[category.name], currentIndex[category.name] + 5).map((item, index) => (
+                <div key={index} className="flex-shrink-0 w-[284px] h-[377px] bg-[#1A1A1A] p-2 rounded-[12px] cursor-pointer flex flex-col items-center justify-between" onClick={() => handleItemClick(item, category)}>
+                    <img src={item.photo} alt={item.title} className="rounded mb-2 w-[243px] h-[281px]" />
+                    {category.name === 'Movies' ? (<h3 className="text-center text-white pb-2">{item.title}</h3>) : (<h3 className="text-center text-white pb-2">{item.name}</h3>)}
+                    <p className="text-gray-400 text-center rounded-[51px] bg-[#141414] w-[242px] h-[36px] flex items-center justify-center">Released at {item.releaseDate}</p>
                 </div>
                 ))}
               </div>

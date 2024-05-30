@@ -1,162 +1,498 @@
-import React from 'react';
-import { useParams } from 'react-router-dom';
-import HeaderUser from '../components/HeaderUser';
-import supabase from '../config/supabaseClient';
+import React, { useState, useEffect } from 'react';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import Header from '../components/HeaderUser.jsx';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Trash2, Image } from "lucide-react";
+import Modal from 'react-modal';
+import supabase from '../config/supabaseClient.js';
+import { v4 as uuidv4 } from 'uuid';
+import { useParams, useNavigate } from 'react-router-dom';
 
-const ActorScreenUser = () => {
-    const { id } = useParams(); // Assuming you're passing the actor's id via the URL
-    const [actor, setActor] = useState(null);
-    const [movies, setMovies] = useState([]);
-    const [family, setFamily] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+Modal.setAppElement('#root'); // Asegúrate de que el root ID es correcto
+
+async function uploadImage(file) {
+    console.log("The image is uploading to the DB...");
+    if (file == null) {
+        return null;
+    }
+    const { data, error } = await supabase
+        .storage
+        .from("images")
+        .upload('actorsanddirectors/' + uuidv4(), file);
+    if (error) {
+        console.error('Error uploading image:', error);
+        return null;
+    }
+    console.log("Retrieving information from the photo...");
+    const path = data.path;
+    const { data: ImportantData } = await supabase
+        .storage
+        .from('images')
+        .getPublicUrl(path);
+
+    return { url: ImportantData.publicUrl, path: path };
+}
+
+async function deleteImage(path) {
+    const { error } = await supabase
+        .storage
+        .from('images')
+        .remove([path]);
+    if (error) {
+        console.error('Error deleting image:', error);
+    }
+}
+
+const EditActorDirector = () => {
+    const { id, role } = useParams();
+    const navigate = useNavigate();
+    const [releaseDate, setReleaseDate] = useState(null);
+    const [nationalities, setNationalities] = useState([]);
+    const [selectedNationality, setSelectedNationality] = useState('');
+    const [biography, setBiography] = useState('');
+    const [trivia, setTrivia] = useState('');
+    const [firstName, setFirstName] = useState('');
+    const [secondName, setSecondName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [secondLastName, setSecondLastName] = useState('');
+    const [birthplace, setBirthplace] = useState('');
+    const [height, setHeight] = useState('');
+    const [familyMembers, setFamilyMembers] = useState([]);
+    const [newFamilyMember, setNewFamilyMember] = useState('');
+    const [imagePath, setImagePath] = useState(null);
+    const [imageUrl, setImageUrl] = useState('');
+    const [moviesOrShows, setMoviesOrShows] = useState([]);
 
     useEffect(() => {
-        const fetchData = async () => {
-            setLoading(true);
-            try {
-                await fetchActor();
-                await fetchMovies();
-                await fetchFamilyMembers();
-            } catch (error) {
-                setError(error.message);
-            } finally {
-                setLoading(false);
-            }
-        };
+        fetchNationalities();
+        fetchActorDirectorDetails();
+        fetchMoviesOrShows();
+    }, []);
 
-        fetchData();
-    }, [id]);
-
-    const fetchActor = async () => {
+    const fetchNationalities = async () => {
         const { data, error } = await supabase
-            .from('Actor/Director')
+            .from('nationality')
+            .select('*');
+        if (error) console.error('Error fetching nationalities:', error);
+        else setNationalities(data);
+    };
+
+    const fetchActorDirectorDetails = async () => {
+        let tableName = role === 'actor' ? 'actor' : 'director';
+
+        const { data, error } = await supabase
+            .from(tableName)
             .select('*')
             .eq('id', id)
             .single();
-
         if (error) {
-            throw new Error('Error fetching actor');
-        } else {
-            setActor(data);
+            console.error('Error fetching actor/director details:', error);
+            return;
+        }
+
+        const details = data;
+        setFirstName(details.name);
+        setSecondName(details.secondName);
+        setLastName(details.lastName);
+        setSecondLastName(details.secondLastName);
+        setBiography(details.biography);
+        setTrivia(details.trivia);
+        setReleaseDate(new Date(details.birthDate));
+        setSelectedNationality(details.nationality);
+        setBirthplace(details.birthPlace);
+        setHeight(details.height);
+        setImageUrl(details.photo);
+
+        if (role === 'actor'){
+            console.log('Familia:')
+            const { dataFamily, errorFamily } = await supabase
+                .from('familyMemberActor')
+                .select('*')
+                .eq('idActorDirector', id)
+            if (errorFamily) {
+                console.error('Error fetching actor/director details:', error);
+                return;
+            } else{
+                console.log(dataFamily)
+                setFamilyMembers(dataFamily || []);
+                console.log()
+            }
+        }
+        
+
+        
+    };
+
+    const fetchMoviesOrShows = async () => {
+        try {
+            let moviesOrShowsData = [];
+            if (role === 'actor') {
+                const { data: actorMovies, error: actorMoviesError } = await supabase
+                    .from('movieXactor')
+                    .select('idMovie')
+                    .eq('idActor', id);
+                    
+                if (actorMoviesError) {
+                    console.error('Error fetching movie IDs for actor:', actorMoviesError);
+                    return;
+                }
+    
+                const { data: actorShows, error: actorShowsError } = await supabase
+                    .from('showXactor')
+                    .select('idShow')
+                    .eq('idActor', id);
+    
+                if (actorShowsError) {
+                    console.error('Error fetching show IDs for actor:', actorShowsError);
+                    return;
+                }
+    
+                const movieIDs = actorMovies.map(item => item.idMovie);
+                const showIDs = actorShows.map(item => item.idShow);
+    
+                const { data: movies, error: moviesError } = await supabase
+                    .from('movie')
+                    .select('*')
+                    .in('id', movieIDs);
+    
+                if (moviesError) {
+                    console.error('Error fetching movies:', moviesError);
+                    return;
+                }
+    
+                const { data: shows, error: showsError } = await supabase
+                    .from('show')
+                    .select('*')
+                    .in('id', showIDs);
+    
+                if (showsError) {
+                    console.error('Error fetching shows:', showsError);
+                    return;
+                }
+    
+                moviesOrShowsData = [...movies, ...shows];
+            } else {
+                const { data: directorMovies, error: directorMoviesError } = await supabase
+                    .from('movieXdirector')
+                    .select('idMovie')
+                    .eq('idDirector', id);
+    
+                if (directorMoviesError) {
+                    console.error('Error fetching movie IDs for director:', directorMoviesError);
+                    return;
+                }
+    
+                const { data: directorShows, error: directorShowsError } = await supabase
+                    .from('showXdirector')
+                    .select('idShow')
+                    .eq('idDirector', id);
+    
+                if (directorShowsError) {
+                    console.error('Error fetching show IDs for director:', directorShowsError);
+                    return;
+                }
+    
+                const movieIDs = directorMovies.map(item => item.idMovie);
+                const showIDs = directorShows.map(item => item.idShow);
+    
+                const { data: movies, error: moviesError } = await supabase
+                    .from('movie')
+                    .select('*')
+                    .in('id', movieIDs);
+    
+                if (moviesError) {
+                    console.error('Error fetching movies:', moviesError);
+                    return;
+                }
+    
+                const { data: shows, error: showsError } = await supabase
+                    .from('show')
+                    .select('*')
+                    .in('id', showIDs);
+    
+                if (showsError) {
+                    console.error('Error fetching shows:', showsError);
+                    return;
+                }
+    
+                moviesOrShowsData = [...movies, ...shows];
+            }
+    
+            setMoviesOrShows(moviesOrShowsData);
+        } catch (error) {
+            console.error('Error fetching movies/shows:', error);
         }
     };
 
-    const fetchMovies = async () => {
-        const { data, error } = await supabase
-            .from('movieXActorDirector')
-            .select('idMovie (title)') // Assuming you have a title field in your movie table
-            .eq('idActor/Director', id);
-
-        if (error) {
-            throw new Error('Error fetching movies');
-        } else {
-            setMovies(data.map(movie => movie.idMovie.title));
+    const handleItemClick = async (item) => {
+        try {
+            // Consultar en la tabla de películas
+            const { data: movieData, error: movieError } = await supabase
+                .from('movie')
+                .select('id, title')
+                .eq('id', item.id)
+                .eq('title', item.title)
+                .single();
+    
+            if (movieError) {
+                console.error('Error fetching movie:', movieError);
+            } else if (movieData) {
+                navigate(`/Movie/${item.id}`);
+                return;
+            }
+    
+            // Consultar en la tabla de shows
+            const { data: showData, error: showError } = await supabase
+                .from('show')
+                .select('id, name')
+                .eq('id', item.id)
+                .eq('name', item.name)
+                .single();
+    
+            if (showError) {
+                console.error('Error fetching show:', showError);
+            } else if (showData) {
+                navigate(`/Show/${item.id}`);
+                return;
+            }
+    
+            // Si no se encuentra en ninguna de las tablas
+            console.error('No matching movie or show found.');
+        } catch (error) {
+            console.error('Error handling item click:', error);
         }
     };
 
-    const fetchFamilyMembers = async () => {
-        const { data, error } = await supabase
-            .from('familyMember')
-            .select('*')
-            .eq('idActor/Director', id);
-
-        if (error) {
-            throw new Error('Error fetching family members');
-        } else {
-            setFamily(data);
+    const addFamilyMember = () => {
+        if (newFamilyMember) {
+            setFamilyMembers([...familyMembers, newFamilyMember]);
+            setNewFamilyMember('');
         }
     };
 
-    if (loading) return <div>Loading...</div>;
-    if (error) return <div>{error}</div>;
+    const handleUpdateActorDirector = async () => {
+        let tableName = role === 'actor' ? 'actor' : 'director';
+
+        // Update actor/director
+        const { error: actorDirectorError } = await supabase
+            .from(tableName)
+            .update({
+                name: firstName,
+                secondName: secondName,
+                lastName: lastName,
+                secondLastName: secondLastName,
+                photo: imageUrl,
+                birthDate: releaseDate,
+                nationality: selectedNationality,
+                birthPlace: birthplace,
+                height: height,
+                trivia: trivia,
+                biography: biography
+            })
+            .eq('id', id);
+
+        if (actorDirectorError) {
+            console.error(`Error updating ${role}:`, actorDirectorError);
+            return;
+        }
+
+        // Update family members
+        const familyTable = role === 'actor' ? 'familyMemberActor' : 'familyMemberDirector';
+        await supabase.from(familyTable).delete().eq('idActorDirector', id);
+
+        const familyData = familyMembers.map(member => ({
+            idActorDirector: id,
+            name: member
+        }));
+
+        const { error: familyError } = await supabase
+            .from(familyTable)
+            .insert(familyData);
+
+        if (familyError) {
+            console.error('Error updating family members:', familyError);
+        } else {
+            alert(`${role.charAt(0).toUpperCase() + role.slice(1)} and family members updated successfully!`);
+        }
+    };
+
+    const handleFileChange = async (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const { url, path } = await uploadImage(file);
+            if (url) {
+                setImageUrl(url);
+                setImagePath(path);
+            }
+        }
+        alert("Image uploaded successfully");
+    };
+
+    const handleDeleteImage = async () => {
+        if (imagePath) {
+            await deleteImage(imagePath);
+            setImageUrl('');
+            setImagePath(null);
+        }
+        alert("Image deleted successfully");
+    };
 
     return (
         <div className="min-h-screen bg-[#141414] text-white">
-            <HeaderUser />
-            <div className="container mx-auto py-4 px-4">
-                <div className='flex flex-col items-center my-3'>
-                    {actor.photo ? (
-                        <img 
-                            src={actor.photo} // Use actual photo URL
-                            alt={actor.name} 
-                            className="h-209 w-130 mx-auto rounded-md" 
-                        />
-                    ) : (
-                        <div className="h-209 w-130 mx-auto rounded-md bg-gray-500" />
-                    )}
-                    <p className='text-xl font-semibold my-3'>{actor.name} {actor.secondName} {actor.lastName} {actor.secondLastName}</p>
+            <Header />
+            <div className="flex justify-center w-full mt-8">
+                <div className="relative" style={{ 
+                        width: '1594px', 
+                        height: '835px', 
+                        backgroundImage: `url('${imageUrl}')`, 
+                        backgroundSize: 'contain', 
+                        backgroundPosition: 'center',
+                        backgroundRepeat: 'no-repeat'
+                    }}>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-20 items-start">
-                    <div className="grid grid-cols-1 col-span-1 md:col-span-2 gap-6 items-center">
-                        <div className='bg-[#262626] rounded-md px-4 py-4'>
-                            <h5 className="text-white">Biography</h5>
-                            <p className="text-[#757070] text-base font-thin">
-                                {actor.biography}
-                            </p>
-                        </div>
-                        <div className='bg-[#262626] rounded-md px-4 py-4'>
-                            <h5 className="text-white">Trivia</h5>
-                            <ul className="list-disc list-inside text-[#757070] text-base font-thin">
-                                {actor.trivia ? actor.trivia.split('\n').map((item, index) => (
-                                    <li key={index}>{item}</li>
-                                )) : <li>No trivia available</li>}
-                            </ul>
-                        </div>
-                        <div className='bg-[#262626] rounded-md px-4 py-4'>
-                            <h5 className="text-lg font-medium mb-2 text-white">Movies Involved In</h5>
-                            <ul className="list-disc list-inside text-[#757070] text-base font-thin">
-                                {movies.length > 0 ? movies.map((movie, index) => (
-                                    <li key={index}>{movie}</li>
-                                )) : <li>No movies available</li>}
-                            </ul>
-                        </div>
+            </div>
+            <div className="w-[1596px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6 pt-[114px]">
+                {/* Div Izquierdo Superior */}
+                <div className="bg-[#1A1A1A] p-6 rounded-lg lg:col-span-2 ">
+                    <h3 className="text-lg font-semibold">Biography</h3>
+                    <Textarea  
+                        className="w-full bg-gray-700 text-[18px] bg-inherit p-4 rounded-lg mt-2"
+                        value={biography}
+                        onChange={(e) => setBiography(e.target.value)} 
+                        disabled
+                    />
+                </div>
+
+                {/* Div Izquierdo Inferior */}
+                <div className="bg-[#1A1A1A] p-6 rounded-lg">
+                    <h3 className="text-lg font-semibold">Trivia</h3>
+                    <div className="flex flex-col gap-2 mt-2">
+                        <Textarea  
+                            className="w-full h-full bg-gray-700 text-[18px] bg-inherit p-4 rounded-lg mt-2"
+                            value={trivia}
+                            onChange={(e) => setTrivia(e.target.value)}
+                            disabled
+                        />
                     </div>
-                    <div className='bg-[#262626] rounded-md px-4 py-4'>
-                        <div className="mb-6">
-                            <h5 className="text-white">Full Name</h5>
-                            <p className="text-[#757070] text-base font-thin">{actor.name} {actor.secondName} {actor.lastName} {actor.secondLastName}</p>
-                        </div>
-                        <div className="mb-6">
-                            <h5 className="text-white">Date of Birth</h5>
-                            <p className="text-[#757070] text-base font-thin">{new Date(actor.birthDate).toLocaleDateString()}</p>
-                        </div>
-                        <div className="mb-6">
-                            <h5 className="text-white">Birthplace</h5>
-                            <p className="text-[#757070] text-base font-thin">{actor.birthPlace}</p>
-                        </div>
-                        <div className="mb-6">
-                            <h5 className="text-white">Nationality</h5>
-                            <p className="text-[#757070] text-base font-thin">{actor.nationality}</p>
-                        </div>
-                        <div className="mb-6">
-                            <h5 className="text-white">Parents</h5>
-                            <p className="text-[#757070] text-base font-thin">
-                                {family.filter(member => member.relation === 'parent').map(member => member.name).join(', ') || 'No data available'}
-                            </p>
-                        </div>
-                        <div className="mb-6">
-                            <h5 className="text-white">Children</h5>
-                            <p className="text-[#757070] text-base font-thin">
-                                {family.filter(member => member.relation === 'child').map(member => member.name).join(', ') || 'No data available'}
-                            </p>
-                        </div>
-                        <div className="mb-6">
-                            <h5 className="text-white">Spouses</h5>
-                            <p className="text-[#757070] text-base font-thin">
-                                {family.filter(member => member.relation === 'spouse').map(member => member.name).join(', ') || 'No data available'}
-                            </p>
-                        </div>
-                        <div className="mb-6">
-                            <h5 className="text-white">Siblings</h5>
-                            <p className="text-[#757070] text-base font-thin">
-                                {family.filter(member => member.relation === 'sibling').map(member => member.name).join(', ') || 'No data available'}
-                            </p>
-                        </div>
-                        <div className="mb-6">
-                            <h5 className="text-white">Height</h5>
-                            <p className="text-[#757070] text-base font-thin">{actor.height} cm</p>
-                        </div>
+                </div>
+
+                {/* Div Derecho */}
+                <div className="bg-[#1A1A1A] p-6 rounded-lg">
+                    <h3 className="text-lg font-semibold">First Name</h3>
+                    <Input
+                        placeholder="Name..."
+                        className="w-full bg-[#141414] p-4 h-[40px] rounded-lg mt-2"
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        disabled
+                    />
+                    <h3 className="text-lg font-semibold">Second Name</h3>
+                    <Input
+                        placeholder="Name..."
+                        className="w-full bg-[#141414] p-4 h-[40px] rounded-lg mt-2"
+                        value={secondName}
+                        onChange={(e) => setSecondName(e.target.value)}
+                        disabled
+                    />
+                    <h3 className="text-lg font-semibold">Last Name</h3>
+                    <Input
+                        placeholder="Name..."
+                        className="w-full bg-[#141414] p-4 h-[40px] rounded-lg mt-2"
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                        disabled
+                    />
+                    <h3 className="text-lg font-semibold">Second Last Name</h3>
+                    <Input
+                        placeholder="Name..."
+                        className="w-full bg-[#141414] p-4 h-[40px] rounded-lg mt-2"
+                        value={secondLastName}
+                        onChange={(e) => setSecondLastName(e.target.value)}
+                        disabled
+                    />
+                    <h3 className="text-lg font-semibold mt-6">Date of birth</h3>
+                    <DatePicker
+                        selected={releaseDate}
+                        onChange={(date) => setReleaseDate(date)}
+                        dateFormat="dd-MM-yyyy"
+                        placeholderText="Select date"
+                        className="w-full h-[40px] bg-[#141414] p-4 rounded-lg mt-2"
+                        showYearDropdown
+                        showMonthDropdown
+                        dropdownMode="select"
+                        yearDropdownItemNumber={100} // Muestra 100 años en el dropdown
+                        scrollableYearDropdown // Permite hacer scroll en el dropdown de años
+                        minDate={new Date(1900, 0, 1)} // Establece la fecha mínima a 1 de enero de 1900
+                        maxDate={new Date()} // Establece la fecha máxima a la fecha actual
+                        disabled
+                    />
+                    <h3 className="text-lg font-semibold mt-6">Birthplace</h3>
+                    <Input
+                        placeholder="Name..."
+                        className="w-full bg-[#141414] p-4 h-[40px] rounded-lg mt-2"
+                        value={birthplace}
+                        onChange={(e) => setBirthplace(e.target.value)}
+                        disabled
+                    />
+                    <h3 className="text-lg font-semibold mt-6">Nationality</h3>
+                    <select
+                        value={selectedNationality}
+                        onChange={(e) => setSelectedNationality(e.target.value)}
+                        className="w-full bg-[#141414] text-white p-4 rounded-lg mt-2"
+                        disabled
+                    >
+                        <option value="" className='text-white' disabled>Select a nationality</option>
+                        {nationalities.map((nationality) => (
+                            <option className='text-white' key={nationality.id} value={nationality.id}>{nationality.name}</option>
+                        ))}
+                    </select>
+                    <h3 className="text-lg font-semibold mt-6">Role</h3>
+                    <select
+                        value={role}
+                        onChange={(e) => setRole(e.target.value)}
+                        className="w-full bg-[#141414] text-white p-4 rounded-lg mt-2"
+                        disabled // Deshabilitado para evitar cambios en el rol durante la edición
+                    >
+                        <option value="actor" className='text-white'>Actor</option>
+                        <option value="director" className='text-white'>Director</option>
+                    </select>
+                    <h3 className="text-lg font-semibold mt-6">Family</h3>
+                    <div className="flex flex-col gap-2">
+                        {familyMembers.map((member, index) => (
+                            <div key={index} className="flex items-center justify-between bg-[#1A1A1A] p-2 rounded-lg mt-2">
+                                <span>{member}</span>
+                            </div>
+                        ))}
+                    </div>
+                    <h3 className="text-lg font-semibold mt-6">Height</h3>
+                    <Input 
+                        type="number" 
+                        placeholder="Insert height (cm)"
+                        className="bg-[#141414] p-4 w-[300px] h-[40px] rounded-lg mt-2"
+                        value={height}
+                        onChange={(e) => setHeight(e.target.value)}
+                        disabled
+                    />
+                </div>
+
+                {/* Div para películas y shows */}
+                <div className="bg-[#1A1A1A] p-6 rounded-lg lg:col-span-2 mt-8">
+                    <h3 className="text-lg font-semibold">Movies/Shows</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-5 lg:grid-cols-5 gap-4 w-full mt-4">
+                        {moviesOrShows.map((item, index) => (
+                            <div 
+                                key={index} 
+                                className="flex-shrink-0 w-[284px] h-[377px] bg-[#1A1A1A] p-2 rounded-[12px] cursor-pointer flex flex-col items-center justify-between"
+                                onClick={() => handleItemClick(item)}
+                            >
+                                <img src={item.photo} alt={item.title} className="rounded mb-2 w-[243px] h-[281px]" />
+                                <h3 className="text-center text-white pb-2">{item.title}</h3>
+                                <p className="text-gray-400 text-center rounded-[51px] bg-[#141414] w-[242px] h-[36px] flex items-center justify-center">Release Date: {item.releaseDate}</p>
+                            </div>
+                        ))}
                     </div>
                 </div>
             </div>
@@ -164,4 +500,4 @@ const ActorScreenUser = () => {
     );
 };
 
-export default ActorScreenUser;
+export default EditActorDirector;

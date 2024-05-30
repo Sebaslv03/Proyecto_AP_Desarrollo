@@ -4,6 +4,7 @@ import home from '../images/home.png';
 import profilepic from '../images/profilepic.png';
 import heart from '../images/heart.png';
 import cart from '../images/cart.png';
+import search from '../images/search.png';
 
 const HeaderUser = () => {
   return (
@@ -16,6 +17,9 @@ const HeaderUser = () => {
           <h1 className="text-3xl font-bold ml-4 text-white">ShowSeeker</h1>
         </div>
         <div className="flex items-center space-x-4">
+          <a href="/SearchPage" className="text-white">
+            <img src={search} alt="search" className="h-8" />
+          </a>
           <a href="/HomePage" className="text-white">
             <img src={home} alt="home" className="h-8" />
           </a>
