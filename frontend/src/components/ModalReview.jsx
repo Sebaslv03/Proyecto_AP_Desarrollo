@@ -1,7 +1,20 @@
-import React, { useState } from 'react';
-
-export default function ModalReview() {
+import React, { useEffect, useState } from 'react';
+import supabase from '../config/supabaseClient';
+export default function ModalReview(id) {
     const [showModal, setShowModal] = useState(false);
+    const [rating, setRating] = useState('1'); // Estado para almacenar el rating
+    const [reviewText, setReviewText] = useState(''); // Estado para almacenar el texto de la revisión
+    const handleReviewSubmit = async () => {
+        const { data, error } = await supabase
+            .rpc('addmoviereview', {
+                description: reviewText,
+                movie_id: id.id,
+                starts: parseInt(rating)
+            })
+        if (error) console.error(error)
+        else console.log(data)
+        setShowModal(false);
+    }
     return (
         <>
             <button className='bg-[#333] text-white p-2 rounded-md mx-3 my-3' onClick={() => setShowModal(true)}>Add Review</button>
@@ -42,7 +55,9 @@ export default function ModalReview() {
                                 {/**Select 5 start */}
                                 <div className="flex justify-center items-center p-6">
                                     <label className="text-white">Rating:</label>
-                                    <select id="rating" className="w-auto p-2 my-3 mx-3 rounded bg-[#222] border border-[#333] text-white">
+                                    <select id="rating" className="w-auto p-2 my-3 mx-3 rounded bg-[#222] border border-[#333] text-white"
+                                        onChange={(e) => setRating(e.target.value)}
+                                    >
                                         <option value="1">1</option>
                                         <option value="2">2</option>
                                         <option value="3">3</option>
@@ -51,23 +66,25 @@ export default function ModalReview() {
                                     </select>
                                 </div>
                                 <div className="relative p-6 flex-auto">
-                                    <textarea className="w-full h-24 p-2 rounded bg-[#222] border border-[#333] text-white" placeholder="Write your review here"></textarea>
+                                    <textarea className="w-full h-24 p-2 rounded bg-[#222] border border-[#333] text-white" placeholder="Write your review here"
+                                        onChange={(e) => setReviewText(e.target.value)}
+                                    ></textarea>
                                 </div>
 
                                 {/*footer*/}
                                 <div className="flex items-center justify-end p-6 border-t border-solid border-blueGray-200 rounded-b">
                                     <button
-                                        className="bg-red-500 text-white active:bg-emerald-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+                                        className="bg-green-500 text-white active:bg-emerald-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
                                         type="button"
-                                        onClick={() => setShowModal(false)}
+                                        onClick={() => handleReviewSubmit()}
                                     >
-                                        Submit
+                                        Add Review
                                     </button>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div className="opacity-25 fixed inset-0 z-40 bg-black"></div>
+                    {/*<div className="opacity-25 fixed inset-0 z-40 bg-black"></div>*/}
                 </>
             ) : null}
         </>
