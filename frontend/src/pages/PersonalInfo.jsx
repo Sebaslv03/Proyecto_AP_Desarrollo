@@ -94,7 +94,7 @@ const PersonalInfo = () => {
         </div>
 
         <div className="text-center mt-4">
-          <p><a href="/" className="text-white">Go back to main</a></p>
+          <p><a href="/HomePage" className="text-white">Go back to main</a></p>
         </div>
       </div>
     </div>
