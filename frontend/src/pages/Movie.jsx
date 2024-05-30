@@ -53,7 +53,6 @@ const Movie = () => {
                 console.error(error)
             }
             if (data) {
-                console.log(data)
                 setDirectors(data);
             }
         }
@@ -96,6 +95,32 @@ const Movie = () => {
         navigate(`/ActorScreenUser/${personId}/${category}`);
     };
 
+    const handleWishCart = async () => {
+        const {data: { user },} = await supabase.auth.getUser()
+        const { dataUser, errorUser: fetchError } = await supabase
+            .from('person')
+            .select('*')
+            .eq('email', user.email);
+        if(errorUser){
+            console.log(errorUser)
+        } else if(dataUser){
+            console.log(dataUser)
+        }
+    }
+
+    const handleCart = async () => {
+        const {data: { user },} = await supabase.auth.getUser()
+        const { dataUser, errorUser: fetchError } = await supabase
+            .from('person')
+            .select('*')
+            .eq('email', user.email);
+        if(errorUser){
+            console.log(errorUser)
+        } else if(dataUser){
+            console.log(dataUser)
+        }
+    }
+
 
     return (
         <div className="min-h-screen bg-[#141414] text-white">
@@ -105,8 +130,8 @@ const Movie = () => {
                     <img src={movie.photo} alt="Add Photo" className="h-209 w-130 mx-auto " />
                     <p className='text-2xl font-bold my-3'>{movie.title}</p>
                     <div className='justify-center'>
-                        <button className="bg-[#333] text-white p-2 rounded-md mx-3 my-3 w-40" onClick={() => alert("Add Sucess")}>Wish</button>
-                        <button className="bg-[#333] text-white p-2 rounded-md mx-3 my-3 w-40" onClick={() => alert("Add Sucess")}>Cart</button>
+                        <button className="bg-[#333] text-white p-2 rounded-md mx-3 my-3 w-40" onClick={() => handleWishCart}>Wish</button>
+                        <button className="bg-[#333] text-white p-2 rounded-md mx-3 my-3 w-40" onClick={() => handleCart}>Cart</button>
                     </div>
                 </div>
                 {/* Add your movie content here */}
@@ -172,7 +197,7 @@ const Movie = () => {
                         <label className="block mb-2">Directors</label>
                         {/**Mapping directors */}
                         {directors.map((director) => (
-                            <button key={director.name} onClick={() => handlePersonClick(director.id_director, "director")} type="button"
+                            <button key={director.name} onClick={() => handlePersonClick(director.director_id, "director")} type="button"
                             id="first-last-name" 
                             className="w-auto p-2 rounded my-2 mx-2 bg-[#222] border border-[#333] text-white"
                             > {director.name + " " + director.lastname}</button>

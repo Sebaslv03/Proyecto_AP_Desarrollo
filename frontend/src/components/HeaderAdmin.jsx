@@ -5,6 +5,7 @@ import search from '../images/search.png';
 import stats from '../images/stats.png';
 import cast from '../images/person.png'
 import catalog from '../images/catalog.png'
+import exit from '../images/exit.png'
 
 const HeaderAdmin = () => {
   return (
@@ -26,6 +27,9 @@ const HeaderAdmin = () => {
           </a>
           <a href="/HomePageAdmin" className="text-white">
             <img src={home} alt="home" className="h-8" />
+          </a>
+          <a href="/" className="text-white">
+            <img src={exit} alt="exit" className="h-8" />
           </a>
           
         </div>

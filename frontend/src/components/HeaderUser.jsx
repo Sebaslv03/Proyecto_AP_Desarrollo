@@ -5,6 +5,8 @@ import profilepic from '../images/profilepic.png';
 import heart from '../images/heart.png';
 import cart from '../images/cart.png';
 import search from '../images/search.png';
+import exit from '../images/exit.png'
+
 
 const HeaderUser = () => {
   return (
@@ -31,6 +33,9 @@ const HeaderUser = () => {
           </a>
           <a href="/ShoppingCart" className="text-white">
             <img src={cart} alt="cart" className="h-8" />
+          </a>
+          <a href="/" className="text-white">
+            <img src={exit} alt="exit" className="h-8" />
           </a>
         </div>
       </div>
