@@ -42,6 +42,7 @@ const Movie = () => {
             }
             if (data) {
                 setCast(data);
+                
             }
         }
         fetchActors();
@@ -119,7 +120,7 @@ const Movie = () => {
                             <h5 className=" text-white">Cast</h5>
                             {/**Mapping actors */
                                 cast.map((actor) => (
-                                    <button key={actor.name} onClick={() => handlePersonClick(1)} type="button"
+                                    <button key={actor.name} onClick={() => handlePersonClick(actor.id_actor)} type="button"
                                     id="first-last-name" 
                                     className="w-auto p-2 rounded my-2 mx-2 bg-[#222] border border-[#333] text-white"
                                     > {actor.name + " " + actor.lastname}</button>
