@@ -34,8 +34,11 @@ const Login = () => {
 
       if (error) throw error;
 
-      // Si el inicio de sesión es exitoso, redirige al usuario a la página de inicio
-      navigate('/HomePage'); // Cambia la ruta según tu necesidad
+      if (email == 'selopez@estudiantec.cr'){
+        navigate('/HomePageAdmin'); // Cambia la ruta según tu necesidad
+      } else {
+        navigate('/HomePage');
+      }
     } catch (error) {
       console.error('Error:', error.message);
       alert('Error al iniciar sesión');
