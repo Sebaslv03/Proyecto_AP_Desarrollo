@@ -5,6 +5,7 @@ import Header from '../components/HeaderUser';
 import ModalReview from '../components/ModalReview';
 import CommentCarousel from '../components/CommentCarousel';
 import supabase from '../config/supabaseClient';
+
 const Movie = () => {
     const navigate = useNavigate();
     const { id } = useParams();
@@ -94,6 +95,7 @@ const Movie = () => {
         navigate(`/ActorScreenUser/${personId}`);
     };
 
+
     return (
         <div className="min-h-screen bg-[#141414] text-white">
             <Header />
@@ -129,7 +131,7 @@ const Movie = () => {
                                 {/*<button className='bg-[#333] text-white p-2 rounded-md mx-3 my-3' onClick={openModalReview}>Add Review</button>*/}
                                 <ModalReview id={id}/>
                             </div>
-                            {/* Aqui va el review que es un carouselll */}
+                            {/* Aqui va el review que es un carousell */}
                             <h1>Comentarios</h1>
                             <CommentCarousel id={id} />
 
@@ -175,7 +177,6 @@ const Movie = () => {
 
                     </div>
                 </div>
-
             </div>
         </div>
     );

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Header from '../components/Header';
+import HeaderUser from '../components/HeaderUser';
 import { Button } from "@/components/ui/button"
 
 
@@ -32,7 +32,7 @@ const SearchPage = () => {
 
   return (
     <div className="min-h-screen bg-[#141414] text-white">
-      <Header />
+      <HeaderUser />
       <div className="container mx-auto mt-8">
         <div className="flex justify-left mb-8">
           <input

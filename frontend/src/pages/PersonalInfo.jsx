@@ -1,12 +1,11 @@
-import React, { useEffect, useState } from 'react'
-import image from '../images/profilepic.png'
-import Header from '../components/Header';
-
+import React from 'react';
+import image from '../images/profilepic.png';
+import HeaderUser from '../components/HeaderUser';
 
 const PersonalInfo = () => {
   return (
     <div className="min-h-screen bg-[#1E1E1E] text-white">
-      <Header/>
+      <HeaderUser/>
       <div className="container mx-auto py-10 px-4">
         <h2 className="text-center text-4xl font-bold mb-10">Personal Information</h2>
         
@@ -36,7 +35,7 @@ const PersonalInfo = () => {
             <label htmlFor="nationality" className="block mb-2">Nationality</label>
             <select id="nationality" className="w-full p-2 rounded bg-[#222] border border-[#333] text-white">
               <option value="Costa Rica">Costa Rica</option>
-              {/* Agrega más opciones según sea necesario */}
+              {/* Add more options as necessary */}
             </select>
           </div>
           <div>
@@ -52,15 +51,15 @@ const PersonalInfo = () => {
             <div className="flex space-x-2">
               <select id="birthdate-month" className="w-full p-2 rounded bg-[#222] border border-[#333] text-white">
                 <option value="mm">mm</option>
-                {/* Agrega más opciones según sea necesario */}
+                {/* Add more options as necessary */}
               </select>
               <select id="birthdate-day" className="w-full p-2 rounded bg-[#222] border border-[#333] text-white">
                 <option value="dd">dd</option>
-                {/* Agrega más opciones según sea necesario */}
+                {/* Add more options as necessary */}
               </select>
               <select id="birthdate-year" className="w-full p-2 rounded bg-[#222] border border-[#333] text-white">
                 <option value="yyyy">yyyy</option>
-                {/* Agrega más opciones según sea necesario */}
+                {/* Add more options as necessary */}
               </select>
             </div>
           </div>
@@ -80,18 +79,22 @@ const PersonalInfo = () => {
           </div>
           <div>
             <div className="flex justify-left mt-8">
-            <button type="submit" className="w-40 max-w-xs p-2 rounded bg-[#e50914] text-white"> View my history</button>
+              <a 
+                href="/History" 
+                className="w-40 max-w-xs p-2 rounded bg-[#e50914] text-white text-center"
+              >
+                View my history
+              </a>
             </div>          
           </div>
         </div>
 
-
         <div className="flex justify-center mt-8">
-          <button type="submit" className="w-full max-w-xs p-2 rounded bg-[#e50914] text-white"> Save changes</button>
+          <button type="submit" className="w-full max-w-xs p-2 rounded bg-[#e50914] text-white">Save changes</button>
         </div>
 
         <div className="text-center mt-4">
-          <p> <a href="/" className="text-white">Go back to main</a></p>
+          <p><a href="/" className="text-white">Go back to main</a></p>
         </div>
       </div>
     </div>
