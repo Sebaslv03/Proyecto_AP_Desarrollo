@@ -20,6 +20,11 @@ import AddShow from './pages/AddShow'
 import AddActorDirector from './pages/AddActorDirector'
 import EditMovie from './pages/EditMovie'
 import EditShow from './pages/EditShow'
+import SearchPageAdmin from './pages/SearchPageAdmin'
+import EditActorDirector from './pages/EditActorDirector'
+import TopAdmin from './pages/TopProductsAdmin'
+import StatsAdmin from './pages/StatsAdmin'
+import AdminCatalog from './pages/AdminCatalog'
 
 const App = () => {
   return (
@@ -47,6 +52,13 @@ const App = () => {
       <Route path='/AddActorDirector' element={<AddActorDirector/>}/>
       <Route path='/EditMovie/:id' element={<EditMovie/>}/>
       <Route path='/EditShow/:id' element={<EditShow/>}/>
+      <Route path='/SearchPageAdmin' element={<SearchPageAdmin/>}/>
+      <Route path='/EditActor/:id/:role' element={<EditActorDirector/>}/>
+      <Route path='/EditDirector/:id/:role' element={<EditActorDirector/>}/>
+      <Route path='/TopProductsAdmin' element={<TopAdmin/>}/>
+      <Route path='/StatsAdmin' element={<StatsAdmin/>} />
+      <Route path='/AdminCatalog' element={<AdminCatalog/>} />
+      
     </Routes>
   )
 }
