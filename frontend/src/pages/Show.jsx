@@ -7,12 +7,13 @@ import * as Accordion from '@radix-ui/react-accordion';
 import { useParams } from 'react-router-dom';
 import supabase from '../config/supabaseClient';
 const Show = () => {
-    const id = 5;//useParams();
+    const {id} = useParams();
     const [show, setShow] = useState({}); // [1
     const [cast, setCast] = useState([]); // [2
     const [platforms, setPlatforms] = useState([]); // [3]
     const [categories, setCategories] = useState([]); // [4]
     const [directors, setDirectors] = useState([]); // [5
+    const [seasons, setSeasons] = useState([]); // [6]
     const releaseDate = show.releasedate;
     const year = new Date(releaseDate).getUTCFullYear();
     useEffect(() => {
@@ -40,6 +41,37 @@ const Show = () => {
         fetchData('getplatformsbyshowid', setPlatforms, id)
         fetchData('getcategoriesbyshowid', setCategories, id)
         fetchData('getdirectorsbyshowid', setDirectors, id)
+        const fetchSeasonsEpisodes = async () => {
+            const { data, error } = await supabase
+                .from('season')
+                .select('id,numberOfSeason')
+                .eq('idShow', id);
+            if (error) {
+                console.log(error);
+            }
+            if (data) {
+                console.log(data);
+                setSeasons(data);
+                setepisodes();
+            }
+        }
+        fetchSeasonsEpisodes();
+        const setepisodes = async () => {
+            seasons.map(async (season) => {
+                const { data, error } = await supabase
+                    .from('episode')
+                    .select('id,name,sinopsis,duration')
+                    .eq('idSeason', season.id);
+                if (error) {
+                    console.log(error);
+                }
+                if (data) {
+                    console.log(data);
+                    season.episodes = data;
+                }
+            });
+            console.log(seasons);
+        }
     }, [id]);
 
 
@@ -50,7 +82,7 @@ const Show = () => {
         // Puedes agregar más comentarios aquí
     ];
     //generate season model data
-    const seasons = [
+    const seasonsa = [
         {
             number: 1,
             episodes: [
@@ -109,7 +141,7 @@ const Show = () => {
                 {/* Add your movie content here */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-20 items-start">
                     <div className="grid grid-cols-1 col-span-1 md:col-span-2 gap-6 items-center">
-                        {seasons.map((season, index) => (
+                        {seasonsa.map((season, index) => (
                             <Accordion.Root key={index} collapsible type='single' defaultValue='item-1' className='bg-[#333] text-white py-2 px-2 rounded-md mx-3 my-3 w-auto flex flex-col'>
                                 <Accordion.Item className="AccordionItem" value={`item-${index}`}>
                                     <Accordion.Trigger>Season {season.number}</Accordion.Trigger>
@@ -149,12 +181,12 @@ const Show = () => {
                             <div className='flex justify-center items-center'>
                                 <h5 className=" text-white w-96">Reviews</h5>
                                 {/*<button className='bg-[#333] text-white p-2 rounded-md mx-3 my-3' onClick={openModalReview}>Add Review</button>*/}
-                                <ModalReview />
+                                <ModalReview id={id}/>
                             </div>
                             {/* Aqui va el review que es un carouselll */}
-                            <input type="text" id="name" value={"AQUI VA EL CAROUSELL"} className="w-full p-2 rounded bg-[#222] border border-[#333] text-white" disabled />
+                            
                             <h1>Comentarios</h1>
-                            {/* <CommentCarousel id={id} />*/}
+                             <CommentCarousel id={id} />
 
                         </div>
                     </div>

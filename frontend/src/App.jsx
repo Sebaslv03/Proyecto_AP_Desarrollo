@@ -41,7 +41,7 @@ const App = () => {
       <Route path='/ShoppingCart' element={<ShoppingCart/>}/>
       <Route path='/History' element={<History/>}/>
       <Route path='/Wishlist' element={<Wishlist/>}/>
-      <Route path='/Show' element={<Show/>}/>
+      <Route path='/Show/:id' element={<Show/>}/>
       
 
 
