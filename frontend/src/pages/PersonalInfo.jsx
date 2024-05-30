@@ -259,7 +259,7 @@ const PersonalInfo = () => {
           </div>
           <div>
             <div className="flex justify-left mt-8">
-            <button type="submit" className="w-40 max-w-xs p-2 rounded bg-[#e50914] text-white" onClick={navigate('/History')}> View my history</button>
+            <button type="submit" className="w-40 max-w-xs p-2 rounded bg-[#e50914] text-white"> View my history</button>
             </div>          
           </div>
         </div>
